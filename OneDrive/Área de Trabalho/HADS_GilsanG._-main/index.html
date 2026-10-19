@@ -5,14 +5,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SaaS Bootstrap 5.3 e Laravel</title>
 
+    <title>MsBarbearias - Agendamento Online</title>
+
+    <!-- INICIO CSS -->
     <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/css/owl.carousel.min.css" rel="stylesheet">
     <link href="./assets/css/owl.theme.default.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
     <link href="./assets/css/style.css" rel="stylesheet">
-    <link rel="shortcut icon" href="./assets/img/icones/1.png" type="image/png">
+
+    <link rel="shortcut icon"
+        href="./assets/img/icones/1.png"
+        type="image/png">
+    <!-- FIM CSS -->
+
 </head>
 
 <body>
@@ -22,63 +32,101 @@
 
         <!-- INICIO MENU TOPO -->
         <nav class="navbar navbar-expand-lg bg-white">
+
             <div class="container">
 
-                <a class="navbar-brand" href="#">
+                <!-- LOGOMARCA -->
+                <a class="navbar-brand" href="index.html">
                     <span>Ms</span>Babearias<span>.</span>
                 </a>
 
-                <button class="navbar-toggler" type="button"
+                <!-- BOTAO RESPONSIVO -->
+                <button class="navbar-toggler"
+                    type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarNavDropdown"
                     aria-controls="navbarNavDropdown"
                     aria-expanded="false"
                     aria-label="Toggle navigation">
+
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!-- INICIO LINKS MENU -->
+                <div class="collapse navbar-collapse"
+                    id="navbarNavDropdown">
 
                     <ul class="navbar-nav ms-auto">
 
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="index.html">Início</a>
+                            <a class="nav-link active"
+                                aria-current="page"
+                                href="index.html">
+                                Início
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="empresa.html" title="">Sobre nós</a>
+                            <a class="nav-link"
+                                href="empresa.html">
+                                Sobre nós
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="servicos.html">Serviços</a>
+                            <a class="nav-link"
+                                href="servicos.html">
+                                Serviços
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="planos.html">Planos</a>
+                            <a class="nav-link"
+                                href="planos.html">
+                                Planos
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="videos.html">Vídeos</a>
+                            <a class="nav-link"
+                                href="videos.html">
+                                Vídeos
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="blog.html">Blog</a>
+                            <a class="nav-link"
+                                href="blog.html">
+                                Blog
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="depoimentos.html">Depoimentos</a>
+                            <a class="nav-link"
+                                href="depoimentos.html">
+                                Depoimentos
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="faq.html">FAQ</a>
+                            <a class="nav-link"
+                                href="faq.html">
+                                FAQ
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="contatos.html">Contatos</a>
+                            <a class="nav-link"
+                                href="contatos.html">
+                                Contatos
+                            </a>
                         </li>
 
+                        <!-- MENU DROPDOWN -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#"
+
+                            <a class="nav-link dropdown-toggle"
+                                href="#"
                                 role="button"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -86,29 +134,37 @@
                             </a>
 
                             <ul class="dropdown-menu">
+
                                 <li>
-                                    <a class="dropdown-item" href="#">Política de Privacidade</a>
+                                    <a class="dropdown-item" href="#">
+                                        Política de Privacidade
+                                    </a>
                                 </li>
 
                                 <li>
-                                    <a class="dropdown-item" href="#">Termos de Serviços</a>
+                                    <a class="dropdown-item" href="#">
+                                        Termos de Serviços
+                                    </a>
                                 </li>
 
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
                             </ul>
+
                         </li>
 
                     </ul>
 
-                    <!-- INICIO BOTÃO DO MENU TOPO -->
-                    <a href="" class="btn btn-brand ms-lg-3">Agendar</a>
-                    <!-- FIM BOTÃO DO MENU TOPO -->
+                    <!-- INICIO BOTAO MENU -->
+                    <a href="#contador"
+                        class="btn btn-brand ms-lg-3">
+                        Agendar
+                    </a>
+                    <!-- FIM BOTAO MENU -->
 
                 </div>
+                <!-- FIM LINKS MENU -->
 
             </div>
+
         </nav>
         <!-- FIM MENU TOPO -->
 
@@ -117,152 +173,320 @@
 
 
     <!-- INICIO SLIDER PRINCIPAL DO SITE -->
-<div class="slider-wrapper owl-carousel owl-theme" id="slide-principal">
+    <div class="slider-wrapper owl-carousel owl-theme"
+        id="slide-principal">
 
-    <!-- INICIO ITEM SLIDER1 -->
-    <div class="slide1 min-vh-100 d-flex bg-cover align-items-center">
+        <!-- INICIO ITEM SLIDER 1 -->
+        <div class="slide1 min-vh-100 d-flex bg-cover align-items-center">
 
-        <div class="container">
+            <div class="container">
 
-            <div class="row">
+                <div class="row">
 
-                <div class="col-12">
-                    <h6 class="text-uppercase text-white">Uma Experiência Única de Agendamentos</h6>
-                    <h1 class="display-2 my-3 text-white">Sua Barbearia <br>Online em Minutos</h1>
-                    <a href="" class="btn btn-brand" title="">Agendar Agora</a>
-                    <a href="" class="btn btn-outline-light ms-md-3" title="">Cadastre-se</a>
+                    <div class="col-12">
+
+                        <h6 class="text-uppercase text-white">
+                            Uma Experiência Única de Agendamentos
+                        </h6>
+
+                        <h1 class="display-2 my-3 text-white">
+                            Sua Barbearia <br>
+                            Online em Minutos
+                        </h1>
+
+                        <a href="#contador"
+                            class="btn btn-brand">
+                            Agendar Agora
+                        </a>
+
+                        <a href="#contador"
+                            class="btn btn-outline-light ms-md-3">
+                            Cadastre-se
+                        </a>
+
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
-
-    </div>
-    <!-- FIM ITEM SLIDER1 -->
+        <!-- FIM ITEM SLIDER 1 -->
 
 
-    <!-- INICIO ITEM SLIDER2 -->
-    <div class="slide2 min-vh-100 d-flex bg-cover align-items-center">
+        <!-- INICIO ITEM SLIDER 2 -->
+        <div class="slide2 min-vh-100 d-flex bg-cover align-items-center">
 
-        <div class="container">
+            <div class="container">
 
-            <div class="row">
+                <div class="row">
 
-                <div class="col-12 text-center">
-                    <h6 class="text-uppercase text-white">Uma Experiência Única de Agendamentos</h6>
-                    <h1 class="display-2 my-3 text-white">Sua Barbearia <br>Online em Minutos</h1>
-                    <a href="" class="btn btn-brand" title="">Agendar Agora</a>
-                    <a href="" class="btn btn-outline-light ms-md-3" title="">Cadastre-se</a>
+                    <div class="col-12 text-center">
+
+                        <h6 class="text-uppercase text-white">
+                            Uma Experiência Única de Agendamentos
+                        </h6>
+
+                        <h1 class="display-2 my-3 text-white">
+                            Sua Barbearia <br>
+                            Online em Minutos
+                        </h1>
+
+                        <a href="#contador"
+                            class="btn btn-brand">
+                            Agendar Agora
+                        </a>
+
+                        <a href="#contador"
+                            class="btn btn-outline-light ms-md-3">
+                            Cadastre-se
+                        </a>
+
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
-
-    </div>
-    <!-- FIM ITEM SLIDER2 -->
+        <!-- FIM ITEM SLIDER 2 -->
 
 
-    <!-- INICIO ITEM SLIDER3 -->
-    <div class="slide3 min-vh-100 d-flex bg-cover align-items-center">
+        <!-- INICIO ITEM SLIDER 3 -->
+        <div class="slide3 min-vh-100 d-flex bg-cover align-items-center">
 
-        <div class="container">
+            <div class="container">
 
-            <div class="row">
+                <div class="row">
 
-                <div class="col-12">
-                    <h6 class="text-uppercase text-white">Uma Experiência Única de Agendamentos</h6>
-                    <h1 class="display-2 my-3 text-white">Sua Barbearia <br>Online em Minutos</h1>
-                    <a href="" class="btn btn-brand" title="">Agendar Agora</a>
-                    <a href="" class="btn btn-outline-light ms-md-3" title="">Cadastre-se</a>
+                    <div class="col-12">
+
+                        <h6 class="text-uppercase text-white">
+                            Uma Experiência Única de Agendamentos
+                        </h6>
+
+                        <h1 class="display-2 my-3 text-white">
+                            Sua Barbearia <br>
+                            Online em Minutos
+                        </h1>
+
+                        <a href="#contador"
+                            class="btn btn-brand">
+                            Agendar Agora
+                        </a>
+
+                        <a href="#contador"
+                            class="btn btn-outline-light ms-md-3">
+                            Cadastre-se
+                        </a>
+
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
+        <!-- FIM ITEM SLIDER 3 -->
 
     </div>
-    <!-- FIM ITEM SLIDER3 -->
+    <!-- FIM SLIDER PRINCIPAL DO SITE -->
 
 
+    <!-- INICIO CONTEUDO PRINCIPAL -->
+    <main>
 
-</div>
-<!-- FIM SLIDER PRINCIPAL DO SITE -->
-  
-<main>
+        <!-- INICIO SOBRE NOS DO SITE -->
+        <section>
 
-<!-- INICIO SOBRE NOS DO SITE -->
-<section>
-    <div class="container">
-        <div class="row align-items-center justify-content-center">
-<!-- INICIO COLUNA 1 -->
-<div class="col-lg-5">
-    <div class="row">
+            <div class="container">
 
-        <!-- INICIO ITEM COLUNA 1 -->
-        <div class="col-12 info-box">
-            <img src="./assets/img/icones/1.png" alt="">
-            <div>
-                <h5 class="mt-4">Agendar cortes</h5>
-                <p>Receba agendamento de cortes por data e hora e receba pagamentos por isso.</p>
+                <div class="row align-items-center justify-content-center">
+
+                    <!-- INICIO COLUNA 1 -->
+                    <div class="col-lg-5">
+
+                        <div class="row">
+
+                            <!-- INICIO ITEM COLUNA 1 -->
+                            <div class="col-12 info-box">
+
+                                <img src="./assets/img/icones/1.png"
+                                    alt="Agendar cortes">
+
+                                <div>
+
+                                    <h5 class="mt-4">
+                                        Agendar cortes
+                                    </h5>
+
+                                    <p>
+                                        Receba agendamento de cortes
+                                        por data e hora e receba
+                                        pagamentos por isso.
+                                    </p>
+
+                                </div>
+
+                            </div>
+                            <!-- FIM ITEM COLUNA 1 -->
+
+
+                            <!-- INICIO ITEM COLUNA 2 -->
+                            <div class="col-12 info-box">
+
+                                <img src="./assets/img/icones/2.png"
+                                    alt="Tratamentos exclusivos">
+
+                                <div>
+
+                                    <h5 class="mt-4">
+                                        Tratamentos exclusivos
+                                    </h5>
+
+                                    <p>
+                                        Receba agendamento de cortes
+                                        por data e hora e receba
+                                        pagamentos por isso.
+                                    </p>
+
+                                </div>
+
+                            </div>
+                            <!-- FIM ITEM COLUNA 2 -->
+
+
+                            <!-- INICIO ITEM COLUNA 3 -->
+                            <div class="col-12 info-box">
+
+                                <img src="./assets/img/icones/3.png"
+                                    alt="Pintura e cuidados">
+
+                                <div>
+
+                                    <h5 class="mt-4">
+                                        Pintura e cuidados
+                                    </h5>
+
+                                    <p>
+                                        Receba agendamento de cortes
+                                        por data e hora e receba
+                                        pagamentos por isso.
+                                    </p>
+
+                                </div>
+
+                            </div>
+                            <!-- FIM ITEM COLUNA 3 -->
+
+                        </div>
+
+                    </div>
+                    <!-- FIM COLUNA 1 -->
+
+
+                    <!-- INICIO COLUNA 2 -->
+                    <div class="col-lg-5">
+
+                        <img
+                            src="./assets/img/sobre-nos/dobre-destaque.jpg"
+                            alt="MsBarbearias"
+                            class="empresa-img">
+
+                    </div>
+                    <!-- FIM COLUNA 2 -->
+
+                </div>
+
             </div>
-        </div>
-        <!-- FIM ITEM COLUNA 1 -->
 
-        <!-- INICIO ITEM COLUNA 1 -->
-        <div class="col-12 info-box">
-            <img src="./assets/img/icones/2.png" alt="">
-            <div>
-                <h5 class="mt-4">Tratamentos exclusivos</h5>
-                <p>Receba agendamento de cortes por data e hora e receba pagamentos por isso.</p>
+        </section>
+        <!-- FIM SOBRE NOS DO SITE -->
+
+
+        <!-- INICIO CONTADOR DO SITE -->
+        <section id="contador" class="bg-cover">
+
+            <div class="container">
+
+                <div class="row gy-4 text-center justify-content-center">
+
+                    <!-- INICIO ITEM CONTADOR 1 -->
+                    <div class="col-lg-2 col-sm-6">
+
+                        <div class="display-4">
+                            777
+                        </div>
+
+                        <p class="mb-0">
+                            Clientes Felizes
+                        </p>
+
+                    </div>
+                    <!-- FIM ITEM CONTADOR 1 -->
+
+
+                    <!-- INICIO ITEM CONTADOR 2 -->
+                    <div class="col-lg-2 col-sm-6">
+
+                        <div class="display-4">
+                            2477
+                        </div>
+
+                        <p class="mb-0">
+                            Vendas feitas
+                        </p>
+
+                    </div>
+                    <!-- FIM ITEM CONTADOR 2 -->
+
+
+                    <!-- INICIO ITEM CONTADOR 3 -->
+                    <div class="col-lg-2 col-sm-6">
+
+                        <div class="display-4">
+                            1240
+                        </div>
+
+                        <p class="mb-0">
+                            Agendamentos
+                        </p>
+
+                    </div>
+                    <!-- FIM ITEM CONTADOR 3 -->
+
+
+                    <!-- INICIO ITEM CONTADOR 4 -->
+                    <div class="col-lg-2 col-sm-6">
+
+                        <div class="display-4">
+                            3717
+                        </div>
+
+                        <p class="mb-0">
+                            Usuários
+                        </p>
+
+                    </div>
+                    <!-- FIM ITEM CONTADOR 4 -->
+
+                </div>
+
             </div>
-        </div>
-        <!-- FIM ITEM COLUNA 1 -->
 
-        <!-- INICIO ITEM COLUNA  -->
-        <div class="col-12 info-box">
-            <img src="./assets/img/icones/3.png" alt="">
-            <div>
-                <h5 class="mt-4">Pintura e cuidados</h5>
-                <p>Receba agendamento de cortes por data e hora e receba pagamentos por isso.</p>
-            </div>
-        </div>
-        <!-- FIM ITEM COLUNA 1 -->
+        </section>
+        <!-- FIM CONTADOR DO SITE -->
 
-    </div>
-</div>
-<!-- FIM COLUNA 1 -->
-
-            <!-- INICIO COLUNA 2 -->
-            <div class="col-lg-5">
-                <img src="./assets/img/sobre-nos/dobre-destaque.jpg" alt="MSELT">
-            </div>
-            <!-- FIM COLUNA 2 -->
-
-        </div>
-    </div>
-</section>
-<!-- FIM SOBRE NOS DO SITE -->
+    </main>
+    <!-- FIM CONTEUDO PRINCIPAL -->
 
 
-
-
-  
-
-
-
-
-</main>
-
-
-
-
-
-
+    <!-- INICIO JAVASCRIPT -->
     <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/jquery-3.7.1.min.js"></script>
     <script src="./assets/js/owl.carousel.min.js"></script>
     <script src="./assets/js/ms.js"></script>
+    <!-- FIM JAVASCRIPT -->
 
 </body>
 
