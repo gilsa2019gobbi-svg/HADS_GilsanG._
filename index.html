@@ -18,6 +18,101 @@
 
 </head>
 
+
+
+
+<!-- INICIO - LOGIN INTEGRADO COM BACKEND -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formLogin = document.getElementById("formLogin");
+    const mensagemLogin = document.getElementById("mensagemLogin");
+
+    if (!formLogin) return;
+
+    formLogin.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const senha = document.getElementById("loginSenha").value;
+        const botaoEntrar = formLogin.querySelector('button[type="submit"]');
+
+        mensagemLogin.textContent = "Verificando seus dados...";
+        mensagemLogin.className = "mt-3 text-secondary";
+
+        botaoEntrar.disabled = true;
+
+        try {
+            const resposta = await fetch("http://localhost:3000/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    email: email,
+                    senha: senha
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.mensagem || "Erro ao realizar login."
+                );
+            }
+
+            mensagemLogin.textContent =
+                "Login realizado com sucesso! Bem-vindo, " +
+                dados.usuario.nome + "!";
+
+            mensagemLogin.className = "mt-3 text-success";
+
+            // INICIO - REDIRECIONAR ADMINISTRADOR
+
+            if (dados.usuario.perfil === "admin") {
+                window.location.href = "./admin.html";
+                return;
+            }
+
+            // FIM - REDIRECIONAR ADMINISTRADOR
+
+            // INICIO - LOGIN DO CLIENTE
+
+            await atualizarMenuUsuario();
+
+            const modalElemento = document.getElementById("modalEntrar");
+
+            if (modalElemento && typeof bootstrap !== "undefined") {
+                const modal = bootstrap.Modal.getInstance(modalElemento);
+
+                modal?.hide();
+            }
+
+            formLogin.reset();
+
+            // FIM - LOGIN DO CLIENTE
+
+        } catch (erro) {
+            mensagemLogin.textContent = erro.message;
+            mensagemLogin.className = "mt-3 text-danger";
+
+        } finally {
+            botaoEntrar.disabled = false;
+        }
+    });
+
+});
+</script>
+
+<!-- FIM - LOGIN INTEGRADO COM BACKEND -->
+
+
+
+
+
 <body>
 
 
@@ -43,25 +138,73 @@
                     </div>
                     <!-- FIM CONTATOS -->
 
-                    <!-- INICIO ACESSO -->
-                    <div class="col-md-6 text-md-end">
+                
+<!-- ----- INICIO ACESSO ----- -->
+<div class="col-md-6 text-md-end">
 
-                        <!-- BOTAO ENTRAR -->
-                        <a href="#" class="text-white text-decoration-none me-3" data-bs-toggle="modal"
-                            data-bs-target="#modalEntrar">
-                            <i class="bi bi-person"></i> Entrar
-                        </a>
+    <!-- ----- INICIO USUARIO DESLOGADO ----- -->
+    <div id="usuario-deslogado">
 
-                      <!-- BOTAO CADASTRE-SE -->
-<a href="#" class="text-white text-decoration-none"
-    data-bs-toggle="modal"
-    data-bs-target="#modalCad">
-    <i class="bi bi-person-plus"></i> Cadastre-se
-</a>
+        <a href="#" class="text-white text-decoration-none me-3"
+           data-bs-toggle="modal" data-bs-target="#modalEntrar">
+            <i class="bi bi-person"></i> Entrar
+        </a>
 
+        <a href="#" class="text-white text-decoration-none"
+           data-bs-toggle="modal" data-bs-target="#modalCad">
+            <i class="bi bi-person-plus"></i> Cadastre-se
+        </a>
 
-                    </div>
-                    <!-- FIM ACESSO -->
+    </div>
+    <!-- ----- FIM USUARIO DESLOGADO ----- -->
+
+    <!-- ----- INICIO MINHA CONTA ----- -->
+    <div id="usuario-logado" class="dropdown d-none">
+
+        <a href="#"
+           class="text-white text-decoration-none dropdown-toggle"
+           data-bs-toggle="dropdown"
+           aria-expanded="false">
+
+            <i class="bi bi-person-circle"></i>
+            <span id="nome-usuario">Minha Conta</span>
+
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+
+            <li>
+                <a class="dropdown-item" href="./meus-agendamentos.html">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Meus Agendamentos
+                </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item" href="./agendamento.html">
+                    <i class="bi bi-calendar-plus me-2"></i>
+                    Novo Agendamento
+                </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+                <button class="dropdown-item text-danger"
+                        type="button" id="btn-sair">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Sair
+                </button>
+            </li>
+
+        </ul>
+
+    </div>
+    <!-- ----- FIM MINHA CONTA ----- -->
+
+</div>
+<!-- ----- FIM ACESSO ----- -->
+
 
                 </div>
             </div>
@@ -146,7 +289,7 @@
                     </ul>
 
                     <!-- INICIO BOTAO MENU -->
-                    <a href="#contador" class="btn btn-brand ms-lg-3">Agendar</a>
+                   <a href="./agendamento.html" class="btn btn-brand ms-lg-3">Agendar</a>
                     <!-- FIM BOTAO MENU -->
 
                 </div>
@@ -161,82 +304,111 @@
 
 
 
-    <!-- INICIO SLIDER PRINCIPAL DO SITE -->
-    <div class="slider-wrapper owl-carousel owl-theme" id="slide-principal">
+   
+<!-- INICIO SLIDER PRINCIPAL DO SITE -->
+<div class="slider-wrapper owl-carousel owl-theme" id="slide-principal">
 
-        <!-- INICIO ITEM SLIDER 1 -->
-        <div class="slide1 min-vh-100 d-flex bg-cover align-items-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
+    <!-- INICIO ITEM SLIDER 1 -->
+    <div class="slide1 min-vh-100 d-flex bg-cover align-items-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
 
-                        <h6 class="text-uppercase text-white">
-                            Uma Experiência Única de Agendamentos
-                        </h6>
+                    <h6 class="text-uppercase text-white">
+                        Uma Experiência Única de Agendamentos
+                    </h6>
 
-                        <h1 class="display-2 my-3 text-white">
-                            Sua Barbearia <br>Online em Minutos
-                        </h1>
+                    <h1 class="display-2 my-3 text-white">
+                        Sua Barbearia <br>Online em Minutos
+                    </h1>
 
-                        <a href="#contador" class="btn btn-brand">Agendar Agora</a>
-                        <a href="#contador" class="btn btn-outline-light ms-md-3">Cadastre-se</a>
+                    <!-- INICIO - BOTAO AGENDAR AGORA -->
+                    <a href="./agendamento.html" class="btn btn-brand">
+                        Agendar Agora
+                    </a>
+                    <!-- FIM - BOTAO AGENDAR AGORA -->
 
-                    </div>
+                    <!-- INICIO - BOTAO CADASTRE-SE -->
+                    <a href="#contador" class="btn btn-outline-light ms-md-3">
+                        Cadastre-se
+                    </a>
+                    <!-- FIM - BOTAO CADASTRE-SE -->
+
                 </div>
             </div>
         </div>
-        <!-- FIM ITEM SLIDER 1 -->
-
-
-        <!-- INICIO ITEM SLIDER 2 -->
-        <div class="slide2 min-vh-100 d-flex bg-cover align-items-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center">
-
-                        <h6 class="text-uppercase text-white">
-                            Uma Experiência Única de Agendamentos
-                        </h6>
-
-                        <h1 class="display-2 my-3 text-white">
-                            Sua Barbearia <br>Online em Minutos
-                        </h1>
-
-                        <a href="#contador" class="btn btn-brand">Agendar Agora</a>
-                        <a href="#contador" class="btn btn-outline-light ms-md-3">Cadastre-se</a>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- FIM ITEM SLIDER 2 -->
-
-
-        <!-- INICIO ITEM SLIDER 3 -->
-        <div class="slide3 min-vh-100 d-flex bg-cover align-items-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-
-                        <h6 class="text-uppercase text-white">
-                            Uma Experiência Única de Agendamentos
-                        </h6>
-
-                        <h1 class="display-2 my-3 text-white">
-                            Sua Barbearia <br>Online em Minutos
-                        </h1>
-
-                        <a href="#contador" class="btn btn-brand">Agendar Agora</a>
-                        <a href="#contador" class="btn btn-outline-light ms-md-3">Cadastre-se</a>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- FIM ITEM SLIDER 3 -->
-
     </div>
-    <!-- FIM SLIDER PRINCIPAL DO SITE -->
+    <!-- FIM ITEM SLIDER 1 -->
+
+
+    <!-- INICIO ITEM SLIDER 2 -->
+    <div class="slide2 min-vh-100 d-flex bg-cover align-items-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+
+                    <h6 class="text-uppercase text-white">
+                        Uma Experiência Única de Agendamentos
+                    </h6>
+
+                    <h1 class="display-2 my-3 text-white">
+                        Sua Barbearia <br>Online em Minutos
+                    </h1>
+
+                    <!-- INICIO - BOTAO AGENDAR AGORA -->
+                    <a href="./agendamento.html" class="btn btn-brand">
+                        Agendar Agora
+                    </a>
+                    <!-- FIM - BOTAO AGENDAR AGORA -->
+
+                    <!-- INICIO - BOTAO CADASTRE-SE -->
+                    <a href="#contador" class="btn btn-outline-light ms-md-3">
+                        Cadastre-se
+                    </a>
+                    <!-- FIM - BOTAO CADASTRE-SE -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIM ITEM SLIDER 2 -->
+
+
+    <!-- INICIO ITEM SLIDER 3 -->
+    <div class="slide3 min-vh-100 d-flex bg-cover align-items-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+
+                    <h6 class="text-uppercase text-white">
+                        Uma Experiência Única de Agendamentos
+                    </h6>
+
+                    <h1 class="display-2 my-3 text-white">
+                        Sua Barbearia <br>Online em Minutos
+                    </h1>
+
+                    <!-- INICIO - BOTAO AGENDAR AGORA -->
+                    <a href="./agendamento.html" class="btn btn-brand">
+                        Agendar Agora
+                    </a>
+                    <!-- FIM - BOTAO AGENDAR AGORA -->
+
+                    <!-- INICIO - BOTAO CADASTRE-SE -->
+                    <a href="#contador" class="btn btn-outline-light ms-md-3">
+                        Cadastre-se
+                    </a>
+                    <!-- FIM - BOTAO CADASTRE-SE -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIM ITEM SLIDER 3 -->
+
+</div>
+<!-- FIM SLIDER PRINCIPAL DO SITE -->
+
 
 
     <!-- INICIO CONTEUDO PRINCIPAL -->
@@ -1222,137 +1394,293 @@
     <!-- FIM RODAPE DO SITE -->
 
 
-    <!-- INICIO MODAL ENTRAR -->
-    <div class="modal fade" id="modalEntrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
+  
+<!-- INICIO MODAL ENTRAR -->
+<div class="modal fade" id="modalEntrar" tabindex="-1"
+    aria-labelledby="tituloModalEntrar" aria-hidden="true">
 
-                <div class="modal-body p-0">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
 
-                    <div class="row g-0">
+            <div class="modal-body p-0">
 
-                        <!-- INICIO IMAGEM ESQUERDA -->
-                        <div class="col-md-5">
-                            <img src="./assets/img/sobre-nos/sobre-4.jpg" alt=""
-                                class="img-fluid h-100 w-100 object-fit-cover">
-                        </div>
-                        <!-- FIM IMAGEM ESQUERDA -->
+                <div class="row g-0">
 
-                        <!-- INICIO FORMULÁRIO DIREITO -->
-                        <div class="col-md-7 mt-5 p-5">
+                    <!-- INICIO IMAGEM ESQUERDA -->
+                    <div class="col-md-5">
+                        <img src="./assets/img/sobre-nos/sobre-4.jpg"
+                            alt=""
+                            class="img-fluid h-100 w-100 object-fit-cover">
+                    </div>
+                    <!-- FIM IMAGEM ESQUERDA -->
 
-                            <h4 class="mb-3">Acessar Painel</h4>
+                    <!-- INICIO FORMULÁRIO DIREITO -->
+                    <div class="col-md-7 mt-5 p-5">
 
-                            <form action="" method="post">
+                        <h4 class="mb-3" id="tituloModalEntrar">
+                            Acessar Painel
+                        </h4>
 
-                                <div class="form-group">
-                                    <label for="" class="form-label">E-mail</label>
-                                    <input type="email" name="email" class="form-control" placeholder="Seu e-mail"
-                                        required>
-                                </div>
+                        <!-- INICIO FORMULÁRIO LOGIN -->
+                        <form id="formLogin">
 
-                                <div class="form-group">
-                                    <label for="" class="form-label">Senha</label>
-                                    <input type="password" name="senha" class="form-control"
-                                        placeholder="Digite sua senha" required>
-                                </div>
+                            <!-- CAMPO E-MAIL -->
+                            <div class="form-group">
+                                <label for="loginEmail" class="form-label">
+                                    E-mail
+                                </label>
 
-                                <div class="d-flex justify-content-end gap-2 mt-2">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
-                                    <button type="button" class="btn btn-brand">Entrar</button>
-                                </div>
+                                <input
+                                    type="email"
+                                    id="loginEmail"
+                                    name="email"
+                                    class="form-control"
+                                    placeholder="Seu e-mail"
+                                    autocomplete="email"
+                                    required>
+                            </div>
 
-                            </form>
+                            <!-- CAMPO SENHA -->
+                            <div class="form-group">
+                                <label for="loginSenha" class="form-label">
+                                    Senha
+                                </label>
 
-                        </div>
-                        <!-- FIM FORMULÁRIO DIREITO -->
+                                <input
+                                    type="password"
+                                    id="loginSenha"
+                                    name="senha"
+                                    class="form-control"
+                                    placeholder="Digite sua senha"
+                                    autocomplete="current-password"
+                                    required>
+                            </div>
+
+
+
+<!-- INICIO - ESQUECI MINHA SENHA -->
+
+<div class="text-end mt-2 mb-4">
+    <a href="./recuperar-senha.html"
+       class="link-recuperar-senha">
+        <i class="bi bi-key me-1"></i>
+        Esqueceu a senha?
+    </a>
+</div>
+
+<!-- FIM - ESQUECI MINHA SENHA -->
+
+                            
+                            <!-- INICIO BOTÕES -->
+                            <div class="d-flex justify-content-end gap-2 mt-2">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-danger"
+                                    data-bs-dismiss="modal">
+                                    Fechar
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-brand">
+                                    Entrar
+                                </button>
+
+                            </div>
+                            <!-- FIM BOTÕES -->
+
+                            <!-- INICIO MENSAGEM DE LOGIN -->
+                            <div
+                                id="mensagemLogin"
+                                class="mt-3"
+                                role="alert"
+                                aria-live="polite">
+                            </div>
+                            <!-- FIM MENSAGEM DE LOGIN -->
+
+                        </form>
+                        <!-- FIM FORMULÁRIO LOGIN -->
 
                     </div>
+                    <!-- FIM FORMULÁRIO DIREITO -->
 
                 </div>
 
             </div>
+
         </div>
     </div>
-    <!-- FIM MODAL ENTRAR -->
+</div>
+<!-- FIM MODAL ENTRAR -->
 
 
-    <!-- INICIO MODAL CADASTRO -->
-    <div class="modal fade" id="modalCad" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
+    
+<!-- INICIO MODAL CADASTRO -->
+<div class="modal fade" id="modalCad" tabindex="-1"
+    aria-labelledby="tituloModalCad" aria-hidden="true">
 
-                <div class="modal-body p-0">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
 
-                    <div class="row g-0">
+            <div class="modal-body p-0">
 
-                        <!-- INICIO IMAGEM ESQUERDA -->
-                        <div class="col-md-5">
-                            <img src="./assets/img/sobre-nos/sobre-5.jpg" alt=""
-                                class="img-fluid h-100 w-100 object-fit-cover">
-                        </div>
-                        <!-- FIM IMAGEM ESQUERDA -->
+                <div class="row g-0">
 
-                        <!-- INICIO FORMULÁRIO DIREITO -->
-                        <div class="col-md-7 mt-5 p-5">
+                    <!-- INICIO IMAGEM ESQUERDA -->
+                    <div class="col-md-5">
+                        <img
+                            src="./assets/img/sobre-nos/sobre-5.jpg"
+                            alt=""
+                            class="img-fluid h-100 w-100 object-fit-cover">
+                    </div>
+                    <!-- FIM IMAGEM ESQUERDA -->
 
-                            <h4 class="mb-3">Faça seu cadastro</h4>
+                    <!-- INICIO FORMULÁRIO DIREITO -->
+                    <div class="col-md-7 mt-5 p-5">
 
-                            <form action="" method="post">
+                        <h4 class="mb-3" id="tituloModalCad">
+                            Faça seu cadastro
+                        </h4>
 
-                                <div class="mb-3">
-                                    <label for="" class="form-label">Primeiro Nome</label>
-                                    <input type="text" name="nome" class="form-control" placeholder="Seu primeiro nome"
-                                        required>
-                                </div>
+                        <!-- INICIO FORMULÁRIO CADASTRO -->
+                        <form id="formCadastro">
 
+                            <!-- INICIO PRIMEIRO NOME -->
+                            <div class="mb-3">
+                                <label for="cadNome" class="form-label">
+                                    Primeiro Nome
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="cadNome"
+                                    name="nome"
+                                    class="form-control"
+                                    placeholder="Seu primeiro nome"
+                                    maxlength="75"
+                                    autocomplete="given-name"
+                                    required>
+                            </div>
+                            <!-- FIM PRIMEIRO NOME -->
+
+                            <!-- INICIO SOBRENOME -->
+                            <div class="form-group">
+                                <label for="cadSobrenome" class="form-label">
+                                    Sobrenome
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="cadSobrenome"
+                                    name="sobrenome"
+                                    class="form-control"
+                                    placeholder="Seu sobrenome"
+                                    maxlength="75"
+                                    autocomplete="family-name"
+                                    required>
+                            </div>
+                            <!-- FIM SOBRENOME -->
+
+                            <!-- INICIO WHATSAPP -->
+                            <div class="form-group">
+                                <label for="cadWhatsapp" class="form-label">
+                                    WhatsApp
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="cadWhatsapp"
+                                    name="fone"
+                                    class="form-control"
+                                    placeholder="(54) 99999-9999"
+                                    autocomplete="tel"
+                                    required>
+                            </div>
+                            <!-- FIM WHATSAPP -->
+
+                            <!-- INICIO E-MAIL -->
+                            <div class="mb-3">
                                 <div class="form-group">
-                                    <label for="" class="form-label">Sobrenome</label>
-                                    <input type="text" name="sobrenome" class="form-control" placeholder="Seu sobrenome"
+                                    <label for="cadEmail" class="form-label">
+                                        E-mail
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        id="cadEmail"
+                                        name="email"
+                                        class="form-control"
+                                        placeholder="Seu e-mail"
+                                        maxlength="255"
+                                        autocomplete="email"
                                         required>
                                 </div>
+                            </div>
+                            <!-- FIM E-MAIL -->
 
+                            <!-- INICIO SENHA -->
+                            <div class="mb-3">
                                 <div class="form-group">
-                                    <label for="" class="form-label">Whatsapp</label>
-                                    <input type="text" name="fone" class="form-control" placeholder="Seu Telefone"
+                                    <label for="cadSenha" class="form-label">
+                                        Senha
+                                    </label>
+
+                                    <input
+                                        type="password"
+                                        id="cadSenha"
+                                        name="senha"
+                                        class="form-control"
+                                        placeholder="Digite sua senha"
+                                        minlength="8"
+                                        autocomplete="new-password"
                                         required>
                                 </div>
+                            </div>
+                            <!-- FIM SENHA -->
 
-                                <div class="mb-3">
-                                    <div class="form-group">
-                                        <label for="" class="form-label">E-mail</label>
-                                        <input type="email" name="email" class="form-control" placeholder="Seu e-mail"
-                                            required>
-                                    </div>
-                                </div>
+                            <!-- INICIO BOTOES -->
+                            <div class="d-flex justify-content-end gap-2 mt-2">
 
-                                <div class="mb-3">
-                                    <div class="form-group">
-                                        <label for="" class="form-label">Senha</label>
-                                        <input type="password" name="senha" class="form-control"
-                                            placeholder="Digite sua senha" required>
-                                    </div>
-                                </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger"
+                                    data-bs-dismiss="modal">
+                                    Fechar
+                                </button>
 
-                                <div class="d-flex justify-content-end gap-2 mt-2">
-                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
-                                    <button type="button" class="btn btn-brand">Cadastrar</button>
-                                </div>
+                                <button
+                                    type="submit"
+                                    class="btn btn-brand">
+                                    Cadastrar
+                                </button>
 
-                            </form>
+                            </div>
+                            <!-- FIM BOTOES -->
 
-                        </div>
-                        <!-- FIM FORMULÁRIO DIREITO -->
+                            <!-- INICIO MENSAGEM CADASTRO -->
+                            <div
+                                id="mensagemCadastro"
+                                class="mt-3"
+                                role="status"
+                                aria-live="polite">
+                            </div>
+                            <!-- FIM MENSAGEM CADASTRO -->
+
+                        </form>
+                        <!-- FIM FORMULÁRIO CADASTRO -->
 
                     </div>
+                    <!-- FIM FORMULÁRIO DIREITO -->
 
                 </div>
 
             </div>
+
         </div>
     </div>
-    <!-- FIM MODAL CADASTRO -->
-
+</div>
+<!-- FIM MODAL CADASTRO -->
 
 
 
@@ -1365,6 +1693,111 @@
     <script src="./assets/js/owl.carousel.min.js"></script>
     <script src="./assets/js/ms.js"></script>
     <!-- FIM JAVASCRIPT -->
+
+
+
+
+<!-- INICIO - SCRIPT DE CADASTRO -->
+<script src="./assets/js/cadastro.js"></script>
+<!-- FIM - SCRIPT DE CADASTRO -->
+
+
+
+<!-- ----- INICIO - CONTROLE MINHA CONTA ----- -->
+<script>
+
+const API_CONTA = "http://localhost:3000";
+
+// ----- INICIO - ATUALIZAR MENU -----
+async function atualizarMenuUsuario() {
+
+    const deslogado = document.getElementById("usuario-deslogado");
+    const logado = document.getElementById("usuario-logado");
+    const nome = document.getElementById("nome-usuario");
+
+    if (!deslogado || !logado || !nome) return;
+
+    try {
+
+        const resposta = await fetch(`${API_CONTA}/api/me`, {
+            credentials: "include"
+        });
+
+        if (resposta.status === 401) {
+            deslogado.classList.remove("d-none");
+            logado.classList.add("d-none");
+            return;
+        }
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao verificar login.");
+        }
+
+        const dados = await resposta.json();
+
+        // Aceita a estrutura de usuario retornada pela API.
+        const usuario = dados.usuario || dados;
+
+        if (!usuario.nome) {
+            throw new Error("Usuário não identificado.");
+        }
+
+        nome.textContent = usuario.nome;
+        deslogado.classList.add("d-none");
+        logado.classList.remove("d-none");
+
+    } catch (erro) {
+
+        console.error("Erro ao atualizar menu:", erro);
+
+    }
+}
+// ----- FIM - ATUALIZAR MENU -----
+
+
+// ----- INICIO - SAIR DA CONTA -----
+async function sairDaConta() {
+
+    try {
+
+        const resposta = await fetch(`${API_CONTA}/api/logout`, {
+            method: "POST",
+            credentials: "include"
+        });
+
+        if (!resposta.ok) {
+            throw new Error("Não foi possível sair da conta.");
+        }
+
+        await atualizarMenuUsuario();
+
+    } catch (erro) {
+
+        console.error("Erro ao sair:", erro);
+        alert("Não foi possível sair da conta. Tente novamente.");
+
+    }
+}
+// ----- FIM - SAIR DA CONTA -----
+
+
+// ----- INICIO - INICIALIZAR -----
+document.addEventListener("DOMContentLoaded", () => {
+
+    atualizarMenuUsuario();
+
+    const botaoSair = document.getElementById("btn-sair");
+
+    if (botaoSair) {
+        botaoSair.addEventListener("click", sairDaConta);
+    }
+
+});
+// ----- FIM - INICIALIZAR -----
+
+</script>
+<!-- ----- FIM - CONTROLE MINHA CONTA ----- -->
+
 
 </body>
 

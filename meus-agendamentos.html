@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- ----- INICIO - CONFIGURACOES ----- -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meus Agendamentos | MsBarbearias</title>
+
+    <!-- ----- INICIO - CSS ----- -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- ----- FIM - CSS ----- -->
+
+    <style>
+        /* ----- INICIO - ESTILO DA PAGINA ----- */
+
+        body {
+            background-color: #ffffff;
+            color: #09243a;
+        }
+
+        .pagina-agendamentos {
+            padding: 55px 0 80px;
+            min-height: 75vh;
+        }
+
+        .titulo-agendamentos {
+            font-size: 36px;
+            font-weight: 700;
+            color: #09243a;
+        }
+
+        .subtitulo-agendamentos {
+            color: #78818d;
+            font-size: 16px;
+        }
+
+        .card-agendamento {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-agendamento h3 {
+            color: #09243a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .detalhe-agendamento {
+            color: #596575;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .preco-agendamento {
+            color: #ff5100;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .status-agendamento {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-agendado {
+            color: #176b3a;
+            background: #e6f5eb;
+        }
+
+        .status-cancelado {
+            color: #a52a2a;
+            background: #fce9e9;
+        }
+
+        .status-outro {
+            color: #62510c;
+            background: #fff4cc;
+        }
+
+        .btn-novo-agendamento {
+            display: inline-block;
+            background-color: #ff5100;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-novo-agendamento:hover {
+            background-color: #df4700;
+            color: #ffffff;
+        }
+
+        .mensagem-vazia {
+            text-align: center;
+            padding: 45px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            color: #596575;
+        }
+
+        @media (max-width: 576px) {
+            .titulo-agendamentos {
+                font-size: 28px;
+            }
+
+            .card-agendamento {
+                padding: 18px;
+            }
+        }
+
+        /* ----- FIM - ESTILO DA PAGINA ----- */
+    </style>
+
+    <!-- ----- FIM - CONFIGURACOES ----- -->
+</head>
+
+<body>
+
+    <!-- ----- INICIO - CABECALHO ----- -->
+    <header class="border-bottom py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <a href="./index.html"
+               class="text-decoration-none fw-bold fs-4"
+               style="color: #09243a;">
+                <span style="color: #ff5100;">Ms</span>Barbearias.
+            </a>
+
+            <a href="./index.html" class="btn btn-outline-secondary px-4">
+                Voltar ao início
+            </a>
+
+        </div>
+    </header>
+    <!-- ----- FIM - CABECALHO ----- -->
+
+
+    <!-- ----- INICIO - CONTEUDO PRINCIPAL ----- -->
+    <main class="pagina-agendamentos">
+
+        <div class="container">
+
+            <!-- ----- INICIO - TITULO ----- -->
+            <div class="text-center mb-5">
+
+                <h1 class="titulo-agendamentos">
+                    Meus Agendamentos
+                </h1>
+
+                <p class="subtitulo-agendamentos">
+                    Consulte seus horários agendados na barbearia.
+                </p>
+
+            </div>
+            <!-- ----- FIM - TITULO ----- -->
+
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+
+                    <!-- ----- INICIO - BOTAO NOVO AGENDAMENTO ----- -->
+                    <div class="text-end mb-4">
+
+                        <a href="./agendamento.html"
+                           class="btn-novo-agendamento">
+                            + Novo Agendamento
+                        </a>
+
+                    </div>
+                    <!-- ----- FIM - BOTAO NOVO AGENDAMENTO ----- -->
+
+
+                    <!-- ----- INICIO - MENSAGEM ----- -->
+                    <div
+                        id="mensagem-agendamentos"
+                        class="alert d-none"
+                        role="alert">
+                    </div>
+                    <!-- ----- FIM - MENSAGEM ----- -->
+
+
+                    <!-- ----- INICIO - LISTA DE AGENDAMENTOS ----- -->
+                    <div id="lista-agendamentos">
+
+                        <div class="mensagem-vazia">
+                            Carregando seus agendamentos...
+                        </div>
+
+                    </div>
+                    <!-- ----- FIM - LISTA DE AGENDAMENTOS ----- -->
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+    <!-- ----- FIM - CONTEUDO PRINCIPAL ----- -->
+
+
+    <!-- ----- INICIO - JAVASCRIPT ----- -->
+    <script src="./assets/js/meus-agendamentos.js"></script>
+    <!-- ----- FIM - JAVASCRIPT ----- -->
+
+</body>
+</html>

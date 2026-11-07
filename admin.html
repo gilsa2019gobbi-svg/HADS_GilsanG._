@@ -1,0 +1,882 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Painel Administrativo | MsBarbearias</title>
+
+    <!-- INICIO - BOOTSTRAP E ICONES -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <!-- FIM - BOOTSTRAP E ICONES -->
+
+    <!-- INICIO - ESTILO DO PAINEL -->
+    <style>
+        :root {
+            --laranja: #ff3200;
+            --escuro: #17212b;
+            --fundo: #f4f6f9;
+        }
+
+        body {
+            margin: 0;
+            background: var(--fundo);
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--escuro);
+            color: white;
+            padding: 25px 15px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar .logo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .sidebar .logo span {
+            color: var(--laranja);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 7px;
+            color: #d6dce2;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: var(--laranja);
+            color: white;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .conteudo {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .topo {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-resumo {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+
+        .card-resumo i {
+            font-size: 32px;
+            color: var(--laranja);
+        }
+
+        .card-resumo h3 {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .card-resumo p {
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .painel-secao {
+            display: none;
+        }
+
+        .painel-secao.ativa {
+            display: block;
+        }
+
+        .tabela-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-laranja {
+            background: var(--laranja);
+            color: white;
+            border: none;
+        }
+
+        .btn-laranja:hover {
+            background: #d92b00;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .conteudo {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .topo {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+    <!-- FIM - ESTILO DO PAINEL -->
+
+</head>
+
+<body>
+
+    <!-- ========================================== -->
+    <!-- INICIO - MENU LATERAL -->
+    <!-- ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span>Ms</span>Barbearias.
+        </div>
+
+        <nav id="menu-admin">
+
+            <a href="#dashboard" class="active" data-secao="dashboard">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
+
+            <a href="#agendamentos" data-secao="agendamentos">
+                <i class="bi bi-calendar-check"></i>
+                Agendamentos
+            </a>
+
+            <a href="#clientes" data-secao="clientes">
+                <i class="bi bi-people"></i>
+                Clientes
+            </a>
+
+            <a href="#barbeiros" data-secao="barbeiros">
+                <i class="bi bi-person-badge"></i>
+                Barbeiros
+            </a>
+
+            <a href="#servicos" data-secao="servicos">
+                <i class="bi bi-scissors"></i>
+                Serviços
+            </a>
+
+            <a href="#mensagens" data-secao="mensagens">
+                <i class="bi bi-envelope"></i>
+                Mensagens
+            </a>
+
+            <hr>
+
+            <a href="index.html">
+                <i class="bi bi-house"></i>
+                Voltar ao site
+            </a>
+
+            <a href="#" id="admin-sair">
+                <i class="bi bi-box-arrow-right"></i>
+                Sair
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- FIM - MENU LATERAL -->
+    <!-- ========================================== -->
+
+
+    <!-- ========================================== -->
+    <!-- INICIO - CONTEUDO PRINCIPAL -->
+    <!-- ========================================== -->
+
+    <main class="conteudo">
+
+        <!-- INICIO - TOPO DO PAINEL -->
+        <div class="topo">
+
+            <div>
+                <h4 class="mb-1">Painel Administrativo</h4>
+                <small class="text-muted">
+                    Gerenciamento do MsBarbearias
+                </small>
+            </div>
+
+            <div>
+                <i class="bi bi-person-circle me-2"></i>
+                <span id="nome-admin">Administrador</span>
+            </div>
+
+        </div>
+        <!-- FIM - TOPO DO PAINEL -->
+
+
+        <!-- INICIO - VERIFICACAO DE ACESSO -->
+        <div id="admin-aviso" class="alert alert-info" role="status">
+            Verificando permissão de administrador...
+        </div>
+        <!-- FIM - VERIFICACAO DE ACESSO -->
+
+
+        <!-- INICIO - AREA PROTEGIDA -->
+        <div id="admin-area" class="d-none">
+
+         
+<!-- INICIO - DASHBOARD -->
+
+<section id="dashboard" class="painel-secao ativa">
+
+    <h3 class="mb-4">Dashboard</h3>
+
+    <div class="row g-4">
+
+        <!-- CARD - AGENDAMENTOS -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-calendar-check"></i>
+                <h3 id="total-agendamentos">--</h3>
+                <p>Agendamentos</p>
+            </div>
+        </div>
+
+        <!-- CARD - CLIENTES -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-people"></i>
+                <h3 id="total-clientes">--</h3>
+                <p>Clientes</p>
+            </div>
+        </div>
+
+        <!-- CARD - BARBEIROS ATIVOS -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-person-badge"></i>
+                <h3 id="total-barbeiros-ativos">--</h3>
+                <p>Barbeiros ativos</p>
+            </div>
+        </div>
+
+        <!-- CARD - MENSAGENS NAO LIDAS -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-envelope-exclamation"></i>
+                <h3 id="total-mensagens-nao-lidas">--</h3>
+                <p>Mensagens não lidas</p>
+            </div>
+        </div>
+
+        <!-- CARD - AGENDAMENTOS DE HOJE -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-calendar-day"></i>
+                <h3 id="agendamentos-hoje">--</h3>
+                <p>Agendamentos de hoje</p>
+            </div>
+        </div>
+
+        <!-- CARD - PROXIMOS AGENDAMENTOS -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card-resumo">
+                <i class="bi bi-clock-history"></i>
+                <h3 id="proximos-agendamentos">--</h3>
+                <p>Próximos agendamentos</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- INICIO - TABELA DOS PROXIMOS AGENDAMENTOS -->
+
+    <h4 class="mt-5 mb-3">Próximos atendimentos</h4>
+
+    <div class="tabela-container table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Barbeiro</th>
+                    <th>Serviço</th>
+                    <th>Data e horário</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-proximos-agendamentos">
+                <tr>
+                    <td colspan="4" class="text-center">
+                        Carregando atendimentos...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- FIM - TABELA DOS PROXIMOS AGENDAMENTOS -->
+
+</section>
+
+<!-- FIM - DASHBOARD -->
+
+
+            <!-- ========================================== -->
+            <!-- INICIO - AGENDAMENTOS -->
+            <!-- ========================================== -->
+
+            <section id="agendamentos" class="painel-secao">
+
+                <h3>Agendamentos</h3>
+
+                <div class="tabela-container table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Barbeiro</th>
+                                <th>Serviço</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tabela-agendamentos">
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    Aguardando carregamento...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- FIM - AGENDAMENTOS -->
+            <!-- ========================================== -->
+
+
+            <!-- ========================================== -->
+            <!-- INICIO - CLIENTES -->
+            <!-- ========================================== -->
+
+            <section id="clientes" class="painel-secao">
+
+                <h3>Clientes cadastrados</h3>
+
+                <div class="tabela-container table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>WhatsApp</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tabela-clientes">
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    Aguardando carregamento...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <!-- ========================================== -->
+            <!-- FIM - CLIENTES -->
+            <!-- ========================================== -->
+
+
+           
+<!-- INICIO - BARBEIROS -->
+
+<section id="barbeiros" class="painel-secao">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <h3 class="mb-0">Gerenciamento de Barbeiros</h3>
+
+        <button
+            type="button"
+            class="btn btn-laranja"
+            id="btn-novo-barbeiro"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-barbeiro"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Novo Barbeiro
+        </button>
+    </div>
+
+    <div id="aviso-barbeiros" class="d-none" role="status"></div>
+
+    <div class="tabela-container table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>WhatsApp</th>
+                    <th>Especialidade</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-barbeiros">
+                <tr>
+                    <td colspan="6" class="text-center">
+                        Aguardando carregamento...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<!-- FIM - BARBEIROS -->
+
+
+<!-- INICIO - MODAL CADASTRO E EDICAO DE BARBEIRO -->
+
+<div
+    class="modal fade"
+    id="modal-barbeiro"
+    tabindex="-1"
+    aria-labelledby="titulo-modal-barbeiro"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="titulo-modal-barbeiro">
+                    Novo Barbeiro
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+            </div>
+
+            <form id="form-barbeiro">
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="barbeiro-id">
+
+                    <div class="mb-3">
+                        <label for="barbeiro-nome" class="form-label">
+                            Nome completo
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="barbeiro-nome"
+                            maxlength="150"
+                            placeholder="Nome do barbeiro"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="barbeiro-whatsapp" class="form-label">
+                            WhatsApp
+                        </label>
+
+                        <input
+                            type="tel"
+                            class="form-control"
+                            id="barbeiro-whatsapp"
+                            maxlength="20"
+                            placeholder="(54) 99999-9999"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="barbeiro-especialidade" class="form-label">
+                            Especialidade
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="barbeiro-especialidade"
+                            maxlength="150"
+                            placeholder="Ex.: Corte masculino e barba"
+                        >
+                    </div>
+
+                    <div id="erro-form-barbeiro" class="alert alert-danger d-none" role="alert"></div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-laranja"
+                        id="btn-salvar-barbeiro"
+                    >
+                        Salvar Barbeiro
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- FIM - MODAL CADASTRO E EDICAO DE BARBEIRO -->
+
+
+
+         
+<!-- INICIO - SERVICOS -->
+
+<section id="servicos" class="painel-secao">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+
+        <h3 class="mb-0">Gerenciamento de Serviços</h3>
+
+        <button
+            type="button"
+            class="btn btn-laranja"
+            id="btn-novo-servico"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-servico"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Novo Serviço
+        </button>
+
+    </div>
+
+    <div id="aviso-servicos" class="d-none" role="status"></div>
+
+    <div class="tabela-container table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Serviço</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>Duração</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-servicos">
+                <tr>
+                    <td colspan="7" class="text-center">
+                        Aguardando carregamento...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<!-- FIM - SERVICOS -->
+
+
+<!-- INICIO - MODAL CADASTRO E EDICAO DE SERVICOS -->
+
+<div
+    class="modal fade"
+    id="modal-servico"
+    tabindex="-1"
+    aria-labelledby="titulo-modal-servico"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="titulo-modal-servico">
+                    Novo Serviço
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+
+            </div>
+
+            <form id="form-servico">
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="servico-id">
+
+                    <!-- Nome -->
+                    <div class="mb-3">
+
+                        <label for="servico-nome" class="form-label">
+                            Nome do serviço
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="servico-nome"
+                            placeholder="Ex.: Corte masculino"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="mb-3">
+
+                        <label for="servico-descricao" class="form-label">
+                            Descrição
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="servico-descricao"
+                            rows="3"
+                            placeholder="Descreva o serviço"
+                        ></textarea>
+
+                    </div>
+
+                    <!-- Preço -->
+                    <div class="mb-3">
+
+                        <label for="servico-preco" class="form-label">
+                            Preço (R$)
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="servico-preco"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="Ex.: 35.00"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- Duração -->
+                    <div class="mb-3">
+
+                        <label for="servico-duracao" class="form-label">
+                            Duração em minutos
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="servico-duracao"
+                            min="1"
+                            step="1"
+                            placeholder="Ex.: 30"
+                            required
+                        >
+
+                    </div>
+
+                    <div
+                        id="erro-form-servico"
+                        class="alert alert-danger d-none"
+                        role="alert"
+                    ></div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-laranja"
+                        id="btn-salvar-servico"
+                    >
+                        Salvar Serviço
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- FIM - MODAL CADASTRO E EDICAO DE SERVICOS -->
+
+
+           
+<!-- INICIO - MENSAGENS -->
+
+<section id="mensagens" class="painel-secao">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <h3 class="mb-0">Gerenciamento de Mensagens</h3>
+
+        <div>
+            <label for="filtro-mensagens" class="form-label">
+                Filtrar por status
+            </label>
+
+            <select class="form-select" id="filtro-mensagens">
+                <option value="todos">Todas as mensagens</option>
+                <option value="nao_lida">Não lidas</option>
+                <option value="lida">Lidas</option>
+                <option value="respondida">Respondidas</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="aviso-mensagens" class="d-none" role="status"></div>
+
+    <div class="tabela-container table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Assunto</th>
+                    <th>Mensagem</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-mensagens">
+                <tr>
+                    <td colspan="7" class="text-center">
+                        Aguardando carregamento...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<!-- FIM - MENSAGENS -->
+
+
+
+        </div>
+        <!-- FIM - AREA PROTEGIDA -->
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- FIM - CONTEUDO PRINCIPAL -->
+    <!-- ========================================== -->
+
+
+    <!-- INICIO - JAVASCRIPT -->
+    <script src="./assets/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/admin.js"></script>
+    <!-- FIM - JAVASCRIPT -->
+
+</body>
+</html>

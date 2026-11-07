@@ -1,0 +1,567 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* PADRÃO DE CORES */
+:root {
+    --vermelho: #ff2c02;
+    --vermelho-escuro: #c02203;
+    --vermelho-transparente: #ff2c0257;
+    --branco: #ffffff;
+    --cinza-texto: #516171;
+    --cinza-claro: #f1f1f1;
+    --azul-escuro: #092032;
+    --preto: #161414;
+}
+
+/* PADRÃO GERAL */
+body {
+    font-family: 'Barlow', sans-serif;
+    line-height: 1.7;
+    color: var(--cinza-texto);
+}
+
+/* PADRÃO DOS LINKS */
+a {
+    font-weight: 500 !important;
+    color: var(--azul-escuro);
+    transition: 0.4s ease;
+    text-decoration: none;
+}
+
+/* PADRÃO DE TÍTULOS */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700 !important;
+    color: var(--azul-escuro) !important;
+}
+
+/* PADRÃO IMAGENS */
+img {
+    width: 100%;
+}
+
+/* PADRÃO FUNDOS */
+.bg-cover {
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+/* TITULOS DO SITE */
+.intro {
+    margin-bottom: 40px !important;
+}
+
+.intro h6 {
+    font-weight: 700 !important;
+    color: var(--vermelho) !important;
+}
+
+.intro p {
+    max-width: 500px !important;
+    margin: auto;
+}
+
+/* PADRÃO SECTIONS */
+section {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+/* PADRÃO redes sociais */
+.social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 34px;
+    height: 34px;
+    color: var(--branco);
+    border-radius: 50%;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.social-links a:hover {
+    background-color: var(--branco);
+    color: var(--vermelho-escuro);
+}
+
+/* fim padrao redes sociais */
+
+
+
+
+/* INICIO SUPER TOPO */
+.top-nav {
+    background-color: var(--vermelho);
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.top-nav p {
+    display: inline-block;
+    color: var(--branco);
+    margin-bottom: 0;
+    margin-right: 16px;
+}
+
+.top-nav i,
+.top-nav span {
+    vertical-align: middle;
+}
+
+.redes-sociais a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--branco);
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.redes-sociais a:hover {
+    background-color: var(--branco);
+    color: var(--vermelho);
+}
+
+/* FIM SUPER TOPO */
+
+
+/* INICIO MENU DO SITE */
+.navbar {
+    box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.08);
+}
+
+.navbar .navbar-nav .nav-link {
+    font-weight: 500 !important;
+}
+
+.navbar .navbar-nav .nav-link:hover,
+.navbar .navbar-nav .nav-link.active {
+    color: var(--vermelho) !important;
+}
+
+/* LOGOMARCA */
+.navbar-brand {
+    font-size: 27px !important;
+    color: var(--azul-escuro) !important;
+    font-weight: 700 !important;
+}
+
+.navbar-brand span {
+    color: var(--vermelho) !important;
+}
+
+.navbar-brand:hover {
+    color: var(--vermelho) !important;
+}
+
+/* BOTÕES */
+.btn {
+    padding: 9px 24px;
+    font-weight: 500;
+}
+
+.btn-brand {
+    background-color: var(--vermelho);
+    color: var(--branco);
+    border-color: var(--vermelho);
+}
+
+.btn-brand:hover {
+    background-color: var(--vermelho-escuro);
+    color: var(--branco);
+    border-color: var(--vermelho-escuro);
+}
+
+/* FIM MENU DO SITE */
+
+
+/* INICIO SLIDE PRINCIPAL */
+.slide1 {
+    background: linear-gradient(rgba(9, 32, 50, 0.4),
+            rgba(9, 32, 50, 0.6)), url('../img/slide/slide-1.jpg');
+}
+
+.slide2 {
+    background: linear-gradient(rgba(9, 32, 50, 0.4),
+            rgba(9, 32, 50, 0.6)), url('../img/slide/slide-2.jpg');
+}
+
+.slide3 {
+    background: linear-gradient(rgba(9, 32, 50, 0.4),
+            rgba(9, 32, 50, 0.6)), url('../img/slide/slide-3.jpg');
+}
+
+/* TÍTULOS DO SLIDER */
+.slide1 h1,
+.slide1 h6,
+.slide2 h1,
+.slide2 h6,
+.slide3 h1,
+.slide3 h6 {
+    color: var(--branco) !important;
+}
+
+/* SETAS DO SLIDER */
+.owl-prev,
+.owl-next {
+    position: absolute;
+    top: 50%;
+    width: 60px !important;
+    height: 60px !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    display: grid;
+    place-items: center;
+    margin-top: -30px !important;
+    font-size: 25px !important;
+    color: var(--branco) !important;
+    font-weight: 700 !important;
+    border-radius: 50% !important;
+}
+
+.owl-prev {
+    left: 0;
+}
+
+.owl-next {
+    right: 0;
+}
+
+.owl-prev:hover,
+.owl-next:hover {
+    background-color: var(--vermelho) !important;
+}
+
+/* FIM SLIDE PRINCIPAL */
+
+
+/* INICIO SOBRE NOS */
+.info-box {
+    display: flex;
+    align-items: center;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.info-box:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
+}
+
+.info-box img {
+    width: 70px;
+    object-fit: cover;
+    margin-right: 14px;
+}
+
+.empresa-img {
+    width: 100%;
+    height: auto;
+    border-top-right-radius: 10%;
+    border-bottom-left-radius: 10%;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+}
+
+.empresa-img:hover {
+    transform: scale(1.1) rotateY(155deg) rotateX(20deg);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* FIM SOBRE NOS */
+
+
+/* INICIO CONTADOR */
+#contador {
+    background: linear-gradient(rgba(224, 34, 5, 0.733),
+            rgba(231, 3, 3, 0.562)), url('../img/slide/slide-2.jpg');
+
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    width: 100%;
+    min-height: 250px;
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+/* NUMEROS E TEXTOS DO CONTADOR */
+#contador .display-4,
+#contador p {
+    color: var(--branco) !important;
+}
+
+/* NUMEROS DO CONTADOR */
+#contador .display-4 {
+    font-weight: 700 !important;
+    font-size: 48px;
+}
+
+/* FIM CONTADOR */
+
+
+/* INICIO SERVIÇOS */
+.servicos-box {
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.20);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+}
+
+.servicos-box:hover {
+    transform: scale(1.1) rotateY(5deg);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
+}
+
+.servicos-box img {
+    width: 80px;
+}
+
+.servicos-box h5 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+
+/* FIM SERVIÇOS */
+
+
+/* INICIO SLIDE DE TELAS */
+.saas-slide {
+    position: relative;
+}
+
+.saas-slide .mascara-bloco {
+    background: linear-gradient(to bottom,
+            rgba(9, 32, 50, 0.0),
+            rgba(0, 9, 15, 0.8));
+    position: absolute;
+    width: 100%;
+    height: 170px;
+    bottom: 0;
+    left: 0;
+}
+
+.saas-slide .conteudo-bloco {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    padding: 32px;
+}
+
+.saas-slide .conteudo-bloco h1,
+.saas-slide .conteudo-bloco p {
+    color: var(--branco) !important;
+}
+
+.saas-slide .conteudo-bloco p::before {
+    content: "";
+    width: 24px;
+    height: 2px;
+    background-color: var(--vermelho);
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+
+/* FIM SLIDE DE TELAS */
+
+
+
+/* INICIO EQUIPE */
+.equipe {
+    text-align: center;
+}
+
+.equipe .img-bloco {
+    position: relative;
+    overflow: hidden;
+}
+
+.equipe .mascara {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--vermelho-transparente);
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+.equipe:hover .mascara {
+    opacity: 1;
+    top: 0;
+}
+
+.equipe .social-links {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.4s ease;
+    opacity: 0;
+}
+
+.equipe:hover .social-links {
+    opacity: 1;
+    top: 50%;
+}
+
+.equipe h5 {
+    margin-top: 24px;
+}
+
+
+/* FIM EQUIPE */
+
+/* FIM EQUIPE */
+
+/* FIM EQUIPE */
+
+/* INICIO PLANOS */
+.planos {
+    transition: 0.4s ease;
+}
+
+.planos:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* FIM PLANOS */
+
+/* INICIO ACCORDION */
+.accordion-button {
+    background-color: var(--vermelho);
+    color: var(--branco);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-style: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--vermelho-escuro);
+    color: var(--branco);
+}
+
+.accordion-item {
+    border: 1px solid var(--vermelho);
+    border-radius: 7px;
+    margin-bottom: 10px;
+}
+
+.accordion-header {
+    border-radius: 7px;
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: invert(1);
+}
+
+.accordion-button::after {
+    filter: invert(1);
+}
+
+/* FIM ACCORDION */
+
+
+/* INICIO BLOG */
+.blog {
+    transition: 0.4s ease;
+}
+
+.blog:hover {
+    transform: scale(1.1);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.8);
+}
+
+.blog img {
+    object-fit: cover;
+    object-position: top;
+}
+
+/* FIM BLOG */
+
+/* INICIO DEPOIMENTOS */
+.depoimento-img {
+    width: 50px !important;
+    height: 50px !important;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* FIM DEPOIMENTOS */
+
+/* INICIO FOOTER */
+footer {
+    background-color: var(--vermelho) !important;
+}
+
+footer h5 {
+    color: var(--branco) !important;
+}
+
+/* FIM FOOTER */
+
+
+/* INICIO PAGINAÇÃO */
+.page-item.active .page-link {
+    background-color: var(--vermelho) !important;
+    color: var(--banco) !important;
+    border: 1px solid var(--vermelho) !important;
+}
+
+.page-link {
+    color: var(--vermelho) !important;
+}
+
+.page-link:hover {
+    background-color: var(--vermelho-escuro);
+}
+/* FIM PAGINAÇÃO */
+
+/* INICIO CORREÇÃO MODAL ENTRAR */
+
+#modalEntrar {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* FIM CORREÇÃO MODAL ENTRAR */
+
+
+/* INICIO - RECUPERAR SENHA */
+
+.link-recuperar-senha {
+    color: var(--vermelho);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.link-recuperar-senha:hover {
+    color: #a82000;
+    text-decoration: underline;
+}
+
+/* FIM - RECUPERAR SENHA */

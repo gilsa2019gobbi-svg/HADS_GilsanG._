@@ -1,0 +1,12 @@
+MsBarbearias - Etapa 2: conexão PostgreSQL
+
+O front-end original foi preservado. A pasta .git interna e node_modules foram excluídos apenas desta cópia ZIP.
+
+1. Extraia o ZIP em uma NOVA pasta, sem sobrescrever o projeto atual.
+2. No terminal, entre na pasta backend.
+3. Execute: npm install
+4. Copie .env.example para .env e ajuste as credenciais do PostgreSQL instalado.
+5. Execute: npm start
+6. Abra http://localhost:3000/api/health (API) e http://localhost:3000/api/db-health (conexão PostgreSQL).
+
+IMPORTANTE: a rota db-health só retornará OK quando existir um servidor PostgreSQL configurado com as credenciais corretas. Nenhuma tabela foi criada.

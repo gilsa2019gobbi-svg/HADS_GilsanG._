@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- INICIO - CONFIGURACOES DA PAGINA -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Horário | MsBarbearias</title>
+
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- FIM - CONFIGURACOES DA PAGINA -->
+</head>
+
+<body>
+
+    <!-- INICIO - CABECALHO -->
+    <header class="bg-white border-bottom py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="./index.html" class="text-decoration-none">
+                <h3 class="m-0">
+                    <span style="color: orangered;">Ms</span>Barbearias.
+                </h3>
+            </a>
+
+            <a href="./index.html" class="btn btn-outline-dark">
+                Voltar ao início
+            </a>
+        </div>
+    </header>
+    <!-- FIM - CABECALHO -->
+
+
+    <!-- INICIO - PAGINA DE AGENDAMENTO -->
+    <main class="container py-5">
+
+        <div class="text-center mb-5">
+            <h1>Agende seu horário</h1>
+            <p class="text-muted">
+                Escolha o serviço, o barbeiro e o melhor horário para você.
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+
+                        <!-- INICIO - FORMULARIO -->
+                        <form id="form-agendamento">
+
+                            <!-- INICIO - SERVICO -->
+                            <div class="mb-3">
+                                <label for="servico" class="form-label">
+                                    Serviço
+                                </label>
+
+                                <select id="servico" class="form-select" required>
+                                    <option value="">Carregando serviços...</option>
+                                </select>
+                            </div>
+                            <!-- FIM - SERVICO -->
+
+
+                            <!-- INICIO - BARBEIRO -->
+                            <div class="mb-3">
+                                <label for="barbeiro" class="form-label">
+                                    Barbeiro
+                                </label>
+
+                                <select id="barbeiro" class="form-select" required>
+                                    <option value="">Carregando barbeiros...</option>
+                                </select>
+                            </div>
+                            <!-- FIM - BARBEIRO -->
+
+
+                            <!-- INICIO - DATA -->
+                            <div class="mb-3">
+                                <label for="data" class="form-label">
+                                    Data
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="data"
+                                    class="form-control"
+                                    required
+                                >
+                            </div>
+                            <!-- FIM - DATA -->
+
+
+                            <!-- INICIO - HORARIO -->
+                            <div class="mb-3">
+                                <label for="horario" class="form-label">
+                                    Horário
+                                </label>
+
+                                <select id="horario" class="form-select" required>
+                                    <option value="">Escolha serviço, barbeiro e data</option>
+                                </select>
+                            </div>
+                            <!-- FIM - HORARIO -->
+
+
+                            <!-- INICIO - MENSAGEM -->
+                            <div
+                                id="mensagem-agendamento"
+                                class="alert d-none"
+                                role="alert"
+                            ></div>
+                            <!-- FIM - MENSAGEM -->
+
+
+                            <!-- INICIO - BOTAO CONFIRMAR -->
+                            <button
+                                type="submit"
+                                id="btn-confirmar"
+                                class="btn btn-brand w-100"
+                                disabled
+                            >
+                                Confirmar Agendamento
+                            </button>
+                            <!-- FIM - BOTAO CONFIRMAR -->
+
+                        </form>
+                        <!-- FIM - FORMULARIO -->
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+    <!-- FIM - PAGINA DE AGENDAMENTO -->
+
+
+    <!-- INICIO - JAVASCRIPT -->
+    <script src="./assets/js/agendamento.js"></script>
+    <!-- FIM - JAVASCRIPT -->
+
+</body>
+</html>
