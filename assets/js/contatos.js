@@ -1,16 +1,16 @@
-
+﻿
 document.addEventListener("DOMContentLoaded", () => {
 
     // ----- INICIO - CONFIGURACOES -----
 
-    const API = "http://localhost:3000";
+    const API = "";
 
     const formulario = document.getElementById("form-contato");
     const botao = document.getElementById("contato-enviar");
     const retorno = document.getElementById("contato-retorno");
 
     if (!formulario || !botao || !retorno) {
-        console.error("Elementos do formulário de contato não encontrados.");
+        console.error("Elementos do formulÃ¡rio de contato nÃ£o encontrados.");
         return;
     }
 
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!tipoResposta.includes("application/json")) {
 
                 throw new Error(
-                    "A rota de contato ainda não está configurada no backend."
+                    "A rota de contato ainda nÃ£o estÃ¡ configurada no backend."
                 );
 
             }
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 throw new Error(
                     resultado.mensagem ||
-                    "Não foi possível enviar sua mensagem."
+                    "NÃ£o foi possÃ­vel enviar sua mensagem."
                 );
 
             }
@@ -189,3 +189,4 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----- FIM - ENVIAR FORMULARIO -----
 
 });
+

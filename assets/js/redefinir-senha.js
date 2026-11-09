@@ -1,9 +1,9 @@
-
+﻿
 // ----- INICIO - REDEFINIR SENHA -----
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const API = "http://localhost:3000";
+    const API = "";
 
     // ----- INICIO - ELEMENTOS DO FORMULARIO -----
 
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mensagem = document.getElementById("mensagem-redefinicao");
 
     if (!formulario || !campoSenha || !campoConfirmar || !botao || !mensagem) {
-        console.error("Elementos do formulário de redefinição não encontrados.");
+        console.error("Elementos do formulÃ¡rio de redefiniÃ§Ã£o nÃ£o encontrados.");
         return;
     }
 
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const parametros = new URLSearchParams(window.location.search);
     const token = parametros.get("token");
 
-    // Retirar o token da barra de endereços por segurança.
+    // Retirar o token da barra de endereÃ§os por seguranÃ§a.
     if (token) {
         window.history.replaceState(
             null,
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token || !/^[a-f0-9]{64}$/.test(token)) {
 
         mostrarMensagem(
-            "Link inválido ou ausente. Solicite uma nova recuperação de senha.",
+            "Link invÃ¡lido ou ausente. Solicite uma nova recuperaÃ§Ã£o de senha.",
             "danger"
         );
 
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (senha !== confirmarSenha) {
 
             mostrarMensagem(
-                "As senhas não coincidem. Tente novamente.",
+                "As senhas nÃ£o coincidem. Tente novamente.",
                 "danger"
             );
 
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const tipo = resposta.headers.get("content-type") || "";
 
             if (!tipo.includes("application/json")) {
-                throw new Error("O servidor não retornou uma resposta válida.");
+                throw new Error("O servidor nÃ£o retornou uma resposta vÃ¡lida.");
             }
 
             const dados = await resposta.json();
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!resposta.ok) {
                 throw new Error(
                     dados.mensagem ||
-                    "Não foi possível redefinir a senha."
+                    "NÃ£o foi possÃ­vel redefinir a senha."
                 );
             }
 
@@ -182,3 +182,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ----- FIM - REDEFINIR SENHA -----
+

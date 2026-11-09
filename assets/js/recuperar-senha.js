@@ -1,9 +1,9 @@
-
+﻿
 // INICIO - RECUPERAR SENHA
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const API = "http://localhost:3000";
+    const API = "";
 
     const formulario = document.getElementById("form-recuperar-senha");
     const campoEmail = document.getElementById("email-recuperacao");
@@ -21,12 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!email || !campoEmail.checkValidity()) {
             mensagem.className = "alert alert-danger mt-3";
-            mensagem.textContent = "Informe um e-mail válido.";
+            mensagem.textContent = "Informe um e-mail vÃ¡lido.";
             return;
         }
 
         mensagem.className = "alert alert-info mt-3";
-        mensagem.textContent = "Processando sua solicitação...";
+        mensagem.textContent = "Processando sua solicitaÃ§Ã£o...";
 
         botaoEnviar.disabled = true;
         botaoEnviar.textContent = "Enviando...";
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!tipo.includes("application/json")) {
                 throw new Error(
-                    `Serviço de recuperação indisponível (HTTP ${resposta.status}).`
+                    `ServiÃ§o de recuperaÃ§Ã£o indisponÃ­vel (HTTP ${resposta.status}).`
                 );
             }
 
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!resposta.ok) {
                 throw new Error(
                     dados.mensagem ||
-                    "Não foi possível processar a solicitação."
+                    "NÃ£o foi possÃ­vel processar a solicitaÃ§Ã£o."
                 );
             }
 
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             mensagem.textContent =
                 dados.mensagem ||
-                "Se o e-mail estiver cadastrado, você receberá as instruções para redefinir sua senha.";
+                "Se o e-mail estiver cadastrado, vocÃª receberÃ¡ as instruÃ§Ãµes para redefinir sua senha.";
 
             formulario.reset();
 
@@ -73,16 +73,17 @@ document.addEventListener("DOMContentLoaded", () => {
             mensagem.className = "alert alert-danger mt-3";
 
             mensagem.textContent =
-                erro.message || "Erro ao solicitar recuperação de senha.";
+                erro.message || "Erro ao solicitar recuperaÃ§Ã£o de senha.";
 
         } finally {
 
             botaoEnviar.disabled = false;
 
-            botaoEnviar.textContent = "Enviar link de recuperação";
+            botaoEnviar.textContent = "Enviar link de recuperaÃ§Ã£o";
         }
     });
 
 });
 
 // FIM - RECUPERAR SENHA
+

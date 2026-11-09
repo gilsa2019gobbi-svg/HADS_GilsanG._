@@ -14,6 +14,18 @@ require("dotenv").config();
 const app = express();
 const pool = require("./db");
 
+
+// ----- INICIO - FRONTEND DO MSBARBEARIAS -----
+
+const path = require("node:path");
+
+const pastaFrontend = path.resolve(__dirname, "..");
+
+app.use(express.static(pastaFrontend));
+
+// ----- FIM - FRONTEND DO MSBARBEARIAS -----
+
+
 // ----- FIM - IMPORTACOES -----
 
 // ----- INICIO - CONFIGURACAO DO SERVIDOR -----

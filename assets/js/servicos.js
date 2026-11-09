@@ -1,4 +1,4 @@
-
+﻿
 /* ==========================================
    INICIO - SERVICOS DA BARBEARIA
 ========================================== */
@@ -15,11 +15,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         // INICIO - BUSCAR SERVICOS NO BACKEND
 
         const resposta = await fetch(
-            "http://localhost:3000/api/servicos"
+            "/api/servicos"
         );
 
         if (!resposta.ok) {
-            throw new Error("Não foi possível carregar os serviços.");
+            throw new Error("NÃ£o foi possÃ­vel carregar os serviÃ§os.");
         }
 
         const dados = await resposta.json();
@@ -63,10 +63,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         // FIM - ATUALIZAR CARDS EXISTENTES
 
     } catch (erro) {
-        console.error("Erro ao carregar serviços:", erro.message);
+        console.error("Erro ao carregar serviÃ§os:", erro.message);
     }
 });
 
 /* ==========================================
    FIM - SERVICOS DA BARBEARIA
 ========================================== */
+
