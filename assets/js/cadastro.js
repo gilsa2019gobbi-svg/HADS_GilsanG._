@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // INICIO - ENVIAR CADASTRO PARA API
 
             const resposta = await fetch(
-                "http://localhost:3000/api/usuarios",
+                "/api/usuarios",
                 {
                     method: "POST",
                     headers: {

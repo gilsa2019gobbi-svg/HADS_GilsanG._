@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
         botaoEntrar.disabled = true;
 
         try {
-            const resposta = await fetch("http://localhost:3000/api/login", {
+            const resposta = await fetch("/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -1706,7 +1706,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <!-- ----- INICIO - CONTROLE MINHA CONTA ----- -->
 <script>
 
-const API_CONTA = "http://localhost:3000";
+const API_CONTA = "";
 
 // ----- INICIO - ATUALIZAR MENU -----
 async function atualizarMenuUsuario() {

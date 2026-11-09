@@ -5,7 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const API = "http://localhost:3000";
+    const API = "";
 
     const form = document.getElementById("form-agendamento");
     const selectServico = document.getElementById("servico");

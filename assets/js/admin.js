@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // INICIO - CONFIGURACOES
 
-    const API = "http://localhost:3000";
+    const API = "";
 
     const aviso = document.getElementById("admin-aviso");
     const area = document.getElementById("admin-area");
