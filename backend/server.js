@@ -1796,7 +1796,7 @@ app.patch(
 
 // ----- FIM - ATIVAR OU DESATIVAR SERVICO -----
 
-// ----- INICIO - LISTAR MENSAGENS ADMIN -----
+ // ----- INICIO - LISTAR MENSAGENS ADMIN -----
 
 app.get(
     "/api/admin/mensagens",
@@ -1813,6 +1813,8 @@ app.get(
                     assunto,
                     mensagem,
                     status,
+                    resposta_admin,
+                    respondida_em,
                     criado_em
                  FROM public.contatos
                  ORDER BY criado_em DESC
@@ -1837,6 +1839,8 @@ app.get(
 );
 
 // ----- FIM - LISTAR MENSAGENS ADMIN -----
+
+
 
 // ----- INICIO - ATUALIZAR STATUS DAS MENSAGENS -----
 
@@ -1901,6 +1905,129 @@ app.patch(
 );
 
 // ----- FIM - ATUALIZAR STATUS DAS MENSAGENS -----
+
+
+ // ----- INICIO - RESPONDER MENSAGEM ADMIN -----
+
+app.post(
+    "/api/admin/mensagens/:id/responder",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+        try {
+            const id = Number(req.params.id);
+            const { resposta } = req.body || {};
+
+            if (!Number.isSafeInteger(id) || id <= 0) {
+                return res.status(400).json({
+                    mensagem: "ID da mensagem inválido."
+                });
+            }
+
+            if (
+                typeof resposta !== "string" ||
+                !resposta.trim() ||
+                resposta.trim().length > 3000
+            ) {
+                return res.status(400).json({
+                    mensagem: "Informe uma resposta de até 3000 caracteres."
+                });
+            }
+
+            // ----- INICIO - BUSCAR MENSAGEM -----
+
+            const resultado = await pool.query(
+                `SELECT id, nome, email, assunto, resposta_admin
+                 FROM public.contatos
+                 WHERE id = $1`,
+                [id]
+            );
+
+            if (resultado.rowCount === 0) {
+                return res.status(404).json({
+                    mensagem: "Mensagem não encontrada."
+                });
+            }
+
+            const contato = resultado.rows[0];
+
+            if (contato.resposta_admin) {
+                return res.status(409).json({
+                    mensagem: "Esta mensagem já possui uma resposta."
+                });
+            }
+
+            // ----- FIM - BUSCAR MENSAGEM -----
+
+            // ----- INICIO - ENVIAR RESPOSTA POR E-MAIL -----
+
+            if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
+                return res.status(503).json({
+                    mensagem: "Serviço de e-mail ainda não configurado."
+                });
+            }
+
+            const envio = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    from: process.env.RESEND_FROM,
+                    to: [contato.email],
+                    subject: `Re: ${contato.assunto}`,
+                    text: `Olá, ${contato.nome}!\n\n${resposta.trim()}\n\nAtenciosamente,\nEquipe MsBarbearias`
+                })
+            });
+
+          if (!envio.ok) {
+    const detalhes = await envio.text();
+
+    console.error("Erro do Resend:", {
+        status: envio.status,
+        detalhes
+    });
+
+    return res.status(502).json({
+        mensagem: "Não foi possível enviar o e-mail. Verifique o terminal."
+    });
+}
+
+            // ----- FIM - ENVIAR RESPOSTA POR E-MAIL -----
+
+            // ----- INICIO - SALVAR RESPOSTA NO BANCO -----
+
+            const atualizacao = await pool.query(
+                `UPDATE public.contatos
+                 SET resposta_admin = $1,
+                     respondida_em = NOW(),
+                     status = 'respondida'
+                 WHERE id = $2
+                 RETURNING id, status, resposta_admin, respondida_em`,
+                [resposta.trim(), id]
+            );
+
+            return res.status(200).json({
+                mensagem: "Resposta enviada e registrada com sucesso!",
+                contato: atualizacao.rows[0]
+            });
+
+            // ----- FIM - SALVAR RESPOSTA NO BANCO -----
+
+        } catch (erro) {
+            console.error("Erro ao responder mensagem:", erro.message);
+
+            return res.status(500).json({
+                mensagem: "Erro ao responder mensagem."
+            });
+        }
+    }
+);
+
+// ----- FIM - RESPONDER MENSAGEM ADMIN -----
+
+
 
 // ----- INICIO - CANCELAR AGENDAMENTO ADMIN -----
 

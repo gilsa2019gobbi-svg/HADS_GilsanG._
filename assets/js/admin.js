@@ -65,6 +65,170 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let mensagensAtuais = [];
 
+
+    // ----- INICIO - MODAL RESPONDER MENSAGEM -----
+
+    const elementoModalResposta = document.createElement("div");
+
+    elementoModalResposta.className = "modal fade";
+    elementoModalResposta.id = "modal-responder-mensagem";
+    elementoModalResposta.tabIndex = -1;
+
+    elementoModalResposta.innerHTML = `
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Responder Mensagem</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Fechar"></button>
+                </div>
+
+                <form id="form-responder-mensagem">
+                    <div class="modal-body">
+
+                        <input type="hidden" id="resposta-mensagem-id">
+
+                        <div class="mb-3">
+                            <label class="form-label">Cliente</label>
+                            <p id="resposta-cliente" class="form-control-plaintext"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">E-mail</label>
+                            <p id="resposta-email" class="form-control-plaintext"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mensagem recebida</label>
+                            <p id="resposta-original"
+                               class="border rounded p-3 text-break"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="resposta-texto" class="form-label">
+                                Sua resposta
+                            </label>
+
+                            <textarea id="resposta-texto"
+                                      class="form-control"
+                                      rows="5"
+                                      maxlength="3000"
+                                      required></textarea>
+                        </div>
+
+                        <div id="erro-resposta"
+                             class="alert alert-danger d-none"></div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Fechar
+                        </button>
+
+                        <button type="submit"
+                                id="btn-enviar-resposta"
+                                class="btn btn-success">
+                            Enviar Resposta
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(elementoModalResposta);
+
+    const modalResposta = bootstrap.Modal.getOrCreateInstance(
+        elementoModalResposta
+    );
+
+    function abrirResponderMensagem(mensagem) {
+
+        document.getElementById("resposta-mensagem-id").value = mensagem.id;
+        document.getElementById("resposta-cliente").textContent = mensagem.nome;
+        document.getElementById("resposta-email").textContent = mensagem.email;
+        document.getElementById("resposta-original").textContent = mensagem.mensagem;
+
+        const campoResposta = document.getElementById("resposta-texto");
+        const botaoEnviar = document.getElementById("btn-enviar-resposta");
+
+        campoResposta.value = mensagem.resposta_admin || "";
+        campoResposta.readOnly = Boolean(mensagem.resposta_admin);
+
+        botaoEnviar.classList.toggle(
+            "d-none",
+            Boolean(mensagem.resposta_admin)
+        );
+
+        document.getElementById("erro-resposta").classList.add("d-none");
+
+        modalResposta.show();
+    }
+
+    document.getElementById("form-responder-mensagem")
+        .addEventListener("submit", async function (evento) {
+
+            evento.preventDefault();
+
+            const id = document.getElementById("resposta-mensagem-id").value;
+            const resposta = document.getElementById("resposta-texto").value.trim();
+
+            const botao = document.getElementById("btn-enviar-resposta");
+            const erroResposta = document.getElementById("erro-resposta");
+
+            if (!resposta) return;
+
+            botao.disabled = true;
+            botao.textContent = "Enviando...";
+            erroResposta.classList.add("d-none");
+
+            try {
+
+                const resultado = await requisitar(
+                    `/api/admin/mensagens/${id}/responder`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify({ resposta })
+                    }
+                );
+
+                modalResposta.hide();
+
+                mostrarAviso(avisoMensagens, resultado.mensagem);
+
+                try {
+                    await carregarMensagens();
+                } catch (erroAtualizacao) {
+                    mostrarAviso(
+                        avisoMensagens,
+                        "Resposta registrada, mas não foi possível atualizar a lista.",
+                        "warning"
+                    );
+                }
+
+            } catch (erro) {
+
+                erroResposta.textContent = erro.message;
+                erroResposta.classList.remove("d-none");
+
+            } finally {
+
+                botao.disabled = false;
+                botao.textContent = "Enviar Resposta";
+
+            }
+        });
+
+    // ----- FIM - MODAL RESPONDER MENSAGEM -----
+
+
     // FIM - ELEMENTOS DAS MENSAGENS
 
     // FIM - CONFIGURACOES
@@ -1117,7 +1281,9 @@ if (contadorAtivos) {
     // FIM - SERVICOS
 
 
-    // INICIO - MENSAGENS
+    // ----- INICIO - MENSAGENS -----
+
+    // ----- INICIO - FORMATAR STATUS DA MENSAGEM -----
 
     function textoStatusMensagem(status) {
 
@@ -1148,6 +1314,11 @@ if (contadorAtivos) {
 
         return celula;
     }
+
+    // ----- FIM - FORMATAR STATUS DA MENSAGEM -----
+
+
+    // ----- INICIO - ALTERAR STATUS DA MENSAGEM -----
 
     async function alterarStatusMensagem(mensagem, status, botao) {
 
@@ -1184,6 +1355,11 @@ if (contadorAtivos) {
         }
     }
 
+    // ----- FIM - ALTERAR STATUS DA MENSAGEM -----
+
+
+    // ----- INICIO - CRIAR BOTAO DE STATUS -----
+
     function criarBotaoMensagem(rotulo, classe, mensagem, status) {
 
         const botao = document.createElement("button");
@@ -1198,6 +1374,39 @@ if (contadorAtivos) {
 
         return botao;
     }
+
+    // ----- FIM - CRIAR BOTAO DE STATUS -----
+
+
+    // ----- INICIO - CRIAR BOTAO RESPONDER -----
+
+    function criarBotaoResponderMensagem(mensagem) {
+
+        const botao = document.createElement("button");
+
+        botao.type = "button";
+
+        botao.className = mensagem.resposta_admin
+            ? "btn btn-sm btn-outline-secondary me-2 mb-1"
+            : "btn btn-sm btn-outline-success me-2 mb-1";
+
+        botao.textContent = mensagem.resposta_admin
+            ? "Ver resposta"
+            : "Responder";
+
+        botao.addEventListener("click", () => {
+
+            abrirResponderMensagem(mensagem);
+
+        });
+
+        return botao;
+    }
+
+    // ----- FIM - CRIAR BOTAO RESPONDER -----
+
+
+    // ----- INICIO - PREENCHER TABELA DE MENSAGENS -----
 
     function preencherMensagens() {
 
@@ -1216,7 +1425,10 @@ if (contadorAtivos) {
         if (registros.length === 0) {
 
             const linha = document.createElement("tr");
-            const celula = criarCelula("Nenhuma mensagem encontrada.");
+
+            const celula = criarCelula(
+                "Nenhuma mensagem encontrada."
+            );
 
             celula.colSpan = 7;
             celula.className = "text-center";
@@ -1231,22 +1443,40 @@ if (contadorAtivos) {
 
             const linha = document.createElement("tr");
 
+            // ----- INICIO - DADOS DA MENSAGEM -----
+
             linha.appendChild(criarCelula(mensagem.id));
             linha.appendChild(criarCelula(mensagem.nome));
             linha.appendChild(criarCelula(mensagem.email));
             linha.appendChild(criarCelula(mensagem.assunto));
 
-            const celulaMensagem = criarCelula(mensagem.mensagem);
+            const celulaMensagem = criarCelula(
+                mensagem.mensagem
+            );
 
             celulaMensagem.classList.add("text-break");
+
             linha.appendChild(celulaMensagem);
+
+            // ----- FIM - DADOS DA MENSAGEM -----
+
+
+            // ----- INICIO - STATUS DA MENSAGEM -----
 
             linha.appendChild(
                 criarStatusMensagem(mensagem.status)
             );
 
+            // ----- FIM - STATUS DA MENSAGEM -----
+
+
+            // ----- INICIO - ACOES DA MENSAGEM -----
+
             const celulaAcoes = document.createElement("td");
+
             celulaAcoes.className = "text-nowrap";
+
+            // ----- INICIO - BOTAO MARCAR COMO LIDA -----
 
             if (mensagem.status === "nao_lida") {
 
@@ -1260,38 +1490,37 @@ if (contadorAtivos) {
                 );
             }
 
-            if (mensagem.status !== "respondida") {
+            // ----- FIM - BOTAO MARCAR COMO LIDA -----
 
-                celulaAcoes.appendChild(
-                    criarBotaoMensagem(
-                        "Marcar como respondida",
-                        "btn-outline-success",
-                        mensagem,
-                        "respondida"
-                    )
-                );
-            }
 
-            if (mensagem.status === "respondida") {
+            // ----- INICIO - BOTAO RESPONDER OU VER RESPOSTA -----
 
-                celulaAcoes.appendChild(
-                    criarBotaoMensagem(
-                        "Marcar como não lida",
-                        "btn-outline-secondary",
-                        mensagem,
-                        "nao_lida"
-                    )
-                );
-            }
+            celulaAcoes.appendChild(
+                criarBotaoResponderMensagem(mensagem)
+            );
+
+            // ----- FIM - BOTAO RESPONDER OU VER RESPOSTA -----
+
 
             linha.appendChild(celulaAcoes);
+
+            // ----- FIM - ACOES DA MENSAGEM -----
+
             tabelaMensagens.appendChild(linha);
+
         });
     }
 
+    // ----- FIM - PREENCHER TABELA DE MENSAGENS -----
+
+
+    // ----- INICIO - CARREGAR MENSAGENS DO BANCO -----
+
     async function carregarMensagens() {
 
-        const dados = await requisitar("/api/admin/mensagens");
+        const dados = await requisitar(
+            "/api/admin/mensagens"
+        );
 
         mensagensAtuais = Array.isArray(dados.mensagens)
             ? dados.mensagens
@@ -1299,32 +1528,55 @@ if (contadorAtivos) {
 
         preencherMensagens();
 
-        
-// INICIO - CONTAR MENSAGENS NAO LIDAS
 
-const mensagensNaoLidas = mensagensAtuais.filter(
-    mensagem => mensagem.status === "nao_lida"
-);
+        // ----- INICIO - CONTAR MENSAGENS NAO LIDAS -----
 
-const contadorNaoLidas = document.getElementById("total-mensagens-nao-lidas");
+        const mensagensNaoLidas = mensagensAtuais.filter(
+            mensagem => mensagem.status === "nao_lida"
+        );
 
-if (contadorNaoLidas) {
-    contadorNaoLidas.textContent = mensagensNaoLidas.length;
-}
+        const contadorNaoLidas = document.getElementById(
+            "total-mensagens-nao-lidas"
+        );
 
-// FIM - CONTAR MENSAGENS NAO LIDAS
+        if (contadorNaoLidas) {
+
+            contadorNaoLidas.textContent =
+                mensagensNaoLidas.length;
+        }
+
+        // ----- FIM - CONTAR MENSAGENS NAO LIDAS -----
 
 
-        const contador = document.getElementById("total-mensagens");
+        // ----- INICIO - CONTAR TOTAL DE MENSAGENS -----
+
+        const contador = document.getElementById(
+            "total-mensagens"
+        );
 
         if (contador) {
+
             contador.textContent = mensagensAtuais.length;
         }
+
+        // ----- FIM - CONTAR TOTAL DE MENSAGENS -----
     }
 
-    filtroMensagens?.addEventListener("change", preencherMensagens);
+    // ----- FIM - CARREGAR MENSAGENS DO BANCO -----
 
-    // FIM - MENSAGENS
+
+    // ----- INICIO - FILTRAR MENSAGENS -----
+
+    filtroMensagens?.addEventListener(
+        "change",
+        preencherMensagens
+    );
+
+    // ----- FIM - FILTRAR MENSAGENS -----
+
+
+    // ----- FIM - MENSAGENS -----
+
 
 
     // INICIO - CARREGAR DADOS DO PAINEL
