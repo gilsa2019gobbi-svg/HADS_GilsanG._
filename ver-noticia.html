@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Artigo | MsBarbearias</title>
+
+    <!-- ----- INICIO - ESTILOS ----- -->
+
+    <link rel="stylesheet"
+          href="./assets/css/bootstrap.min.css">
+
+    <link rel="stylesheet"
+          href="./assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            background: #17191b;
+            color: #f1f1f1;
+        }
+
+        .topo-noticia {
+            background: #111315;
+            padding: 22px 0;
+        }
+
+        .logo-noticia {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo-noticia span {
+            color: #ff3200;
+        }
+
+        .logo-noticia:hover {
+            color: #ffffff;
+        }
+
+        .artigo-container {
+            max-width: 900px;
+            margin: 60px auto;
+        }
+
+        .artigo-titulo {
+            font-size: clamp(28px, 5vw, 46px);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .artigo-resumo {
+            color: #b8b8b8;
+            font-size: 19px;
+            line-height: 1.7;
+        }
+
+        .artigo-imagem {
+            width: 100%;
+            max-height: 470px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        .artigo-conteudo {
+            font-size: 18px;
+            line-height: 1.9;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-voltar {
+            background: #ff3200;
+            border: none;
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-voltar:hover {
+            background: #d92b00;
+            color: #fff;
+        }
+    </style>
+
+    <!-- ----- FIM - ESTILOS ----- -->
+</head>
+
+<body>
+
+    <!-- ----- INICIO - CABECALHO ----- -->
+
+    <header class="topo-noticia">
+
+        <div class="container d-flex
+                    justify-content-between
+                    align-items-center gap-3">
+
+            <a href="./index.html" class="logo-noticia">
+                <span>Ms</span>Barbearias.
+            </a>
+
+            <a href="./index.html#blog"
+               class="btn-voltar">
+                <i class="bi bi-arrow-left me-2"></i>
+                Voltar ao Blog
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- ----- FIM - CABECALHO ----- -->
+
+
+    <!-- ----- INICIO - CONTEUDO DA NOTICIA ----- -->
+
+    <main class="container">
+
+        <article class="artigo-container">
+
+            <div id="aviso-artigo" class="text-center">
+                <p>Carregando artigo...</p>
+            </div>
+
+            <div id="artigo-detalhes" class="d-none">
+
+                <h1 id="artigo-titulo"
+                    class="artigo-titulo"></h1>
+
+                <p id="artigo-data"
+                   class="text-secondary mb-4"></p>
+
+                <p id="artigo-resumo"
+                   class="artigo-resumo"></p>
+
+                <img id="artigo-imagem"
+                     class="artigo-imagem"
+                     alt="Imagem da publicação">
+
+                <div id="artigo-conteudo"
+                     class="artigo-conteudo"></div>
+
+                <hr class="my-5">
+
+                <a href="./index.html#blog"
+                   class="btn-voltar">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Voltar ao Blog
+                </a>
+
+            </div>
+
+        </article>
+
+    </main>
+
+    <!-- ----- FIM - CONTEUDO DA NOTICIA ----- -->
+
+
+    <!-- ----- INICIO - CARREGAR ARTIGO DO BANCO ----- -->
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            async function () {
+
+                const parametros =
+                    new URLSearchParams(window.location.search);
+
+                const id = parametros.get("id");
+
+                const aviso =
+                    document.getElementById("aviso-artigo");
+
+                const detalhes =
+                    document.getElementById("artigo-detalhes");
+
+                if (!id || !/^[1-9]\d*$/.test(id)) {
+                    aviso.textContent = "Artigo inválido.";
+                    return;
+                }
+
+                try {
+
+                    const resposta = await fetch(
+                        `/api/blog/${encodeURIComponent(id)}`
+                    );
+
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            dados.mensagem ||
+                            "Não foi possível carregar o artigo."
+                        );
+                    }
+
+                    const post = dados.post;
+
+                    // ----- INICIO - PREENCHER ARTIGO -----
+
+                    document.getElementById(
+                        "artigo-titulo"
+                    ).textContent = post.titulo;
+
+                    document.title =
+                        `${post.titulo} | MsBarbearias`;
+
+                    document.getElementById(
+                        "artigo-resumo"
+                    ).textContent = post.resumo;
+
+                    document.getElementById(
+                        "artigo-conteudo"
+                    ).textContent = post.conteudo;
+
+                    const data = new Date(post.criado_em);
+
+                    document.getElementById(
+                        "artigo-data"
+                    ).textContent =
+                        "Publicado por MsBarbearias em " +
+                        data.toLocaleDateString("pt-BR", {
+                            timeZone: "America/Sao_Paulo"
+                        });
+
+                    const imagem =
+                        document.getElementById("artigo-imagem");
+
+                    imagem.src = post.imagem_url ||
+                        "./assets/img/blog/blog01.jpg";
+
+                    imagem.alt = post.titulo;
+
+                    imagem.onerror = function () {
+                        this.onerror = null;
+                        this.src = "./assets/img/blog/blog01.jpg";
+                    };
+
+                    // ----- FIM - PREENCHER ARTIGO -----
+
+                    aviso.classList.add("d-none");
+                    detalhes.classList.remove("d-none");
+
+                } catch (erro) {
+
+                    console.error(erro);
+
+                    aviso.textContent = erro.message;
+
+                }
+            }
+        );
+    </script>
+
+    <!-- ----- FIM - CARREGAR ARTIGO DO BANCO ----- -->
+
+</body>
+</html>

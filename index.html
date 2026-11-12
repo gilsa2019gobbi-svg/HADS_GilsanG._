@@ -1013,120 +1013,56 @@ document.addEventListener("DOMContentLoaded", function () {
         <!-- FIM FAQ SITE -->
 
 
-        <!-- INICIO BLOG -->
-        <section class="py-5">
-            <div class="container">
+        
+<!-- ----- INICIO - BLOG DINAMICO ----- -->
 
-                <!-- INICIO TITULO -->
-                <div class="row">
+<section class="py-5" id="blog">
 
-                    <div class="col-12 intro text-center">
-                        <h6>Novidades do Site</h6>
-                        <h1>Últimas do Blog</h1>
-                        <p>Fique por dentro de todas as novidades do site.</p>
-                    </div>
+    <div class="container">
 
-                </div>
-                <!-- FIM TITULO -->
+        <!-- ----- INICIO - TITULO BLOG ----- -->
 
-                <div class="row g-4">
+        <div class="row">
 
-                    <!-- INICIO ITEM POST -->
-                    <div class="col-md-6 col-lg-4">
+            <div class="col-12 intro text-center">
 
-                        <div class="card h-100 shadow-sm blog">
+                <h6>Novidades do Site</h6>
 
-                            <a href="ver-noticia.html" title="">
-                                <img src="./assets/img/blog/blog01.jpg" alt="" class="card-img-top">
-                            </a>
+                <h1>Últimas do Blog</h1>
 
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Como melhorar sua produtividade no dia a dia
-                                </h5>
-
-                                <small class="text-muted d-block mb-2">
-                                    Por <strong>João Silva</strong> - 12/11/2035
-                                </small>
-
-                                <p class="card-text">
-                                    Pequenos hábitos podem transformar sua rotina.
-                                    Veja algumas dicas práticas para melhorar seu foco e energia.
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <!-- FIM ITEM POST -->
-
-
-                    <!-- INICIO ITEM POST -->
-                    <div class="col-md-6 col-lg-4">
-
-                        <div class="card h-100 shadow-sm blog">
-
-                            <a href="ver-noticia.html" title="">
-                                <img src="./assets/img/blog/blog02.jpg" alt="" class="card-img-top">
-                            </a>
-
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Tendências de tecnologia para ficar de olho
-                                </h5>
-
-                                <small class="text-muted d-block mb-2">
-                                    Por <strong>Maria Oliveira</strong> - 05/11/2035
-                                </small>
-
-                                <p class="card-text">
-                                    A tecnologia está evoluindo rápido. Confira as
-                                    principais tendências que devem impactar o
-                                    mercado nos próximos anos.
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <!-- FIM ITEM POST -->
-
-
-                    <!-- INICIO ITEM POST -->
-                    <div class="col-md-6 col-lg-4">
-
-                        <div class="card h-100 shadow-sm blog">
-
-                            <a href="ver-noticia.html" title="">
-                                <img src="./assets/img/blog/blog03.jpg" alt="" class="card-img-top">
-                            </a>
-
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Como o design pode melhorar sua marca
-                                </h5>
-
-                                <small class="text-muted d-block mb-2">
-                                    Por <strong>Carlos Mendes</strong> - 01/11/2035
-                                </small>
-
-                                <p class="card-text">
-                                    Um bom design faz toda a diferença para atrair
-                                    e fidelizar clientes. Conheça os elementos
-                                    essenciais.
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <!-- FIM ITEM POST -->
-
-                </div>
+                <p>
+                    Confira nossas dicas de cuidados com o cabelo,
+                    barba e novidades do mundo das barbearias.
+                </p>
 
             </div>
-        </section>
-        <!-- FIM BLOG -->
+
+        </div>
+
+        <!-- ----- FIM - TITULO BLOG ----- -->
+
+
+        <!-- ----- INICIO - PUBLICACOES DINAMICAS ----- -->
+
+        <div class="row g-4" id="lista-blog">
+
+            <div class="col-12 text-center">
+
+                <p class="text-muted">
+                    Carregando publicações...
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- ----- FIM - PUBLICACOES DINAMICAS ----- -->
+
+    </div>
+
+</section>
+
+<!-- ----- FIM - BLOG DINAMICO ----- -->
 
 
         <!-- INICIO DEPOIMENTOS -->
@@ -1853,6 +1789,176 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </script>
 <!-- ----- FIM - CONTROLE MINHA CONTA ----- -->
+
+
+<!-- ----- INICIO - CARREGAR BLOG DO SUPABASE ----- -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+    const listaBlog = document.getElementById("lista-blog");
+
+    if (!listaBlog) return;
+
+    try {
+
+        // ----- INICIO - CONSULTAR API DO BLOG -----
+
+        const resposta = await fetch("/api/blog");
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao carregar publicações.");
+        }
+
+        const dados = await resposta.json();
+
+        const posts = Array.isArray(dados.posts)
+            ? dados.posts.slice(0, 3)
+            : [];
+
+        listaBlog.replaceChildren();
+
+        // ----- FIM - CONSULTAR API DO BLOG -----
+
+
+        // ----- INICIO - VERIFICAR PUBLICACOES -----
+
+        if (posts.length === 0) {
+
+            listaBlog.innerHTML = `
+                <div class="col-12 text-center">
+                    <p class="text-muted">
+                        Nenhuma publicação disponível no momento.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        // ----- FIM - VERIFICAR PUBLICACOES -----
+
+
+        // ----- INICIO - CRIAR CARDS DO BLOG -----
+
+        posts.forEach(post => {
+
+            const coluna = document.createElement("div");
+            coluna.className = "col-md-6 col-lg-4";
+
+            const card = document.createElement("div");
+            card.className = "card h-100 shadow-sm blog";
+
+            // ----- INICIO - IMAGEM -----
+
+            const imagem = document.createElement("img");
+
+            imagem.src = post.imagem_url ||
+                "./assets/img/blog/blog01.jpg";
+
+            imagem.alt = post.titulo;
+            imagem.className = "card-img-top";
+
+            imagem.style.height = "220px";
+            imagem.style.objectFit = "cover";
+
+            imagem.onerror = function () {
+                this.onerror = null;
+                this.src = "./assets/img/blog/blog01.jpg";
+            };
+
+        
+            // ----- INICIO - LINK DA IMAGEM -----
+
+            const linkImagem = document.createElement("a");
+
+            linkImagem.href = `./ver-noticia.html?id=${post.id}`;
+
+            linkImagem.appendChild(imagem);
+
+            card.appendChild(linkImagem);
+
+            // ----- FIM - LINK DA IMAGEM -----
+
+
+            // ----- FIM - IMAGEM -----
+
+
+            // ----- INICIO - CONTEUDO DO CARD -----
+
+            const corpo = document.createElement("div");
+            corpo.className = "card-body";
+
+            const titulo = document.createElement("h5");
+            titulo.className = "card-title";
+            titulo.textContent = post.titulo;
+
+            const data = document.createElement("small");
+            data.className = "text-muted d-block mb-2";
+
+            const dataPublicacao = new Date(post.criado_em);
+
+            data.textContent = Number.isNaN(dataPublicacao.getTime())
+                ? "MsBarbearias"
+                : "MsBarbearias - " +
+                  dataPublicacao.toLocaleDateString("pt-BR", {
+                      timeZone: "America/Sao_Paulo"
+                  });
+
+            const resumo = document.createElement("p");
+            resumo.className = "card-text";
+            resumo.textContent = post.resumo;
+
+            // ----- INICIO - LINK DO TITULO -----
+
+            const linkTitulo = document.createElement("a");
+
+            linkTitulo.href = `./ver-noticia.html?id=${post.id}`;
+            linkTitulo.className = "text-decoration-none";
+            linkTitulo.style.color = "inherit";
+
+            linkTitulo.appendChild(titulo);
+
+            corpo.appendChild(linkTitulo);
+
+            // ----- FIM - LINK DO TITULO -----
+
+            corpo.appendChild(data);
+            corpo.appendChild(resumo);
+
+            card.appendChild(corpo);
+
+            // ----- FIM - CONTEUDO DO CARD -----
+
+
+            coluna.appendChild(card);
+
+            listaBlog.appendChild(coluna);
+
+        });
+
+        // ----- FIM - CRIAR CARDS DO BLOG -----
+
+    } catch (erro) {
+
+        console.error("Erro ao carregar blog:", erro);
+
+        listaBlog.innerHTML = `
+            <div class="col-12 text-center">
+                <p class="text-danger">
+                    Não foi possível carregar as publicações.
+                </p>
+            </div>
+        `;
+
+    }
+
+});
+
+</script>
+
+<!-- ----- FIM - CARREGAR BLOG DO SUPABASE ----- -->
 
 
 </body>

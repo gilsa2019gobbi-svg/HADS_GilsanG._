@@ -1378,32 +1378,94 @@ if (contadorAtivos) {
     // ----- FIM - CRIAR BOTAO DE STATUS -----
 
 
-    // ----- INICIO - CRIAR BOTAO RESPONDER -----
+
+    // ----- INICIO - CRIAR BOTAO RESPONDER PELO GMAIL -----
 
     function criarBotaoResponderMensagem(mensagem) {
 
         const botao = document.createElement("button");
 
         botao.type = "button";
-
-        botao.className = mensagem.resposta_admin
-            ? "btn btn-sm btn-outline-secondary me-2 mb-1"
-            : "btn btn-sm btn-outline-success me-2 mb-1";
-
-        botao.textContent = mensagem.resposta_admin
-            ? "Ver resposta"
-            : "Responder";
+        botao.className = "btn btn-sm btn-outline-success me-2 mb-1";
+        botao.textContent = "Responder pelo Gmail";
 
         botao.addEventListener("click", () => {
 
-            abrirResponderMensagem(mensagem);
+            const destinatario = mensagem.email;
+
+            const assunto = `Re: ${mensagem.assunto}`;
+
+            const corpo =
+                `Olá, ${mensagem.nome}!\n\n` +
+                `\n\n` +
+                `Atenciosamente,\n` +
+                `Equipe MsBarbearias\n\n` +
+                `--- Mensagem original ---\n` +
+                `${mensagem.mensagem}`;
+
+            const urlGmail =
+                "https://mail.google.com/mail/?view=cm&fs=1" +
+                `&to=${encodeURIComponent(destinatario)}` +
+                `&su=${encodeURIComponent(assunto)}` +
+                `&body=${encodeURIComponent(corpo)}`;
+
+            window.open(
+                urlGmail,
+                "_blank",
+                "noopener,noreferrer"
+            );
 
         });
 
         return botao;
     }
 
-    // ----- FIM - CRIAR BOTAO RESPONDER -----
+    // ----- FIM - CRIAR BOTAO RESPONDER PELO GMAIL -----
+
+
+    
+    // ----- INICIO - CRIAR BOTAO RESPONDER PELO GMAIL -----
+
+    function criarBotaoResponderMensagem(mensagem) {
+
+        const botao = document.createElement("button");
+
+        botao.type = "button";
+        botao.className = "btn btn-sm btn-outline-success me-2 mb-1";
+        botao.textContent = "Responder pelo Gmail";
+
+        botao.addEventListener("click", () => {
+
+            const destinatario = mensagem.email;
+
+            const assunto = `Re: ${mensagem.assunto}`;
+
+            const corpo =
+                `Olá, ${mensagem.nome}!\n\n` +
+                `\n\n` +
+                `Atenciosamente,\n` +
+                `Equipe MsBarbearias\n\n` +
+                `--- Mensagem original ---\n` +
+                `${mensagem.mensagem}`;
+
+            const urlGmail =
+                "https://mail.google.com/mail/?view=cm&fs=1" +
+                `&to=${encodeURIComponent(destinatario)}` +
+                `&su=${encodeURIComponent(assunto)}` +
+                `&body=${encodeURIComponent(corpo)}`;
+
+            window.open(
+                urlGmail,
+                "_blank",
+                "noopener,noreferrer"
+            );
+
+        });
+
+        return botao;
+    }
+
+    // ----- FIM - CRIAR BOTAO RESPONDER PELO GMAIL -----
 
 
     // ----- INICIO - PREENCHER TABELA DE MENSAGENS -----
@@ -1493,13 +1555,30 @@ if (contadorAtivos) {
             // ----- FIM - BOTAO MARCAR COMO LIDA -----
 
 
-            // ----- INICIO - BOTAO RESPONDER OU VER RESPOSTA -----
+            // ----- INICIO - BOTAO RESPONDER PELO GMAIL -----
 
             celulaAcoes.appendChild(
                 criarBotaoResponderMensagem(mensagem)
             );
 
-            // ----- FIM - BOTAO RESPONDER OU VER RESPOSTA -----
+            // ----- FIM - BOTAO RESPONDER PELO GMAIL -----
+
+
+            // ----- INICIO - MARCAR COMO RESPONDIDA -----
+
+            if (mensagem.status !== "respondida") {
+
+                celulaAcoes.appendChild(
+                    criarBotaoMensagem(
+                        "Marcar como respondida",
+                        "btn-outline-secondary",
+                        mensagem,
+                        "respondida"
+                    )
+                );
+            }
+
+            // ----- FIM - MARCAR COMO RESPONDIDA -----
 
 
             linha.appendChild(celulaAcoes);
@@ -1512,6 +1591,7 @@ if (contadorAtivos) {
     }
 
     // ----- FIM - PREENCHER TABELA DE MENSAGENS -----
+
 
 
     // ----- INICIO - CARREGAR MENSAGENS DO BANCO -----
@@ -1578,6 +1658,300 @@ if (contadorAtivos) {
     // ----- FIM - MENSAGENS -----
 
 
+
+    // ----- INICIO - GERENCIAMENTO DO BLOG -----
+
+    const tabelaBlog = document.getElementById("tabela-blog");
+    const avisoBlog = document.getElementById("aviso-blog");
+    const formularioBlog = document.getElementById("form-blog");
+    const botaoNovoPost = document.getElementById("btn-novo-post");
+    const botaoSalvarBlog = document.getElementById("btn-salvar-blog");
+
+    const campoBlogId = document.getElementById("blog-id");
+    const campoBlogTitulo = document.getElementById("blog-titulo");
+    const campoBlogResumo = document.getElementById("blog-resumo");
+    const campoBlogConteudo = document.getElementById("blog-conteudo");
+    const campoBlogImagem = document.getElementById("blog-imagem");
+    const campoBlogPublicado = document.getElementById("blog-publicado");
+
+    const tituloModalBlog = document.getElementById("titulo-modal-blog");
+    const erroFormularioBlog = document.getElementById("erro-form-blog");
+
+    const elementoModalBlog = document.getElementById("modal-blog");
+
+    const modalBlog = elementoModalBlog
+        ? bootstrap.Modal.getOrCreateInstance(elementoModalBlog)
+        : null;
+
+
+    // ----- INICIO - LIMPAR FORMULARIO -----
+
+    function limparFormularioBlog() {
+
+        if (!formularioBlog) return;
+
+        formularioBlog.reset();
+
+        campoBlogId.value = "";
+        campoBlogPublicado.checked = true;
+
+        tituloModalBlog.textContent = "Nova Publicação";
+        botaoSalvarBlog.textContent = "Salvar Publicação";
+
+        erroFormularioBlog.classList.add("d-none");
+        erroFormularioBlog.textContent = "";
+    }
+
+    botaoNovoPost?.addEventListener("click", () => {
+        limparFormularioBlog();
+        limparAviso(avisoBlog);
+    });
+
+    // ----- FIM - LIMPAR FORMULARIO -----
+
+
+    // ----- INICIO - EDITAR PUBLICACAO -----
+
+    function editarPostBlog(post) {
+
+        limparFormularioBlog();
+
+        campoBlogId.value = post.id;
+        campoBlogTitulo.value = post.titulo || "";
+        campoBlogResumo.value = post.resumo || "";
+        campoBlogConteudo.value = post.conteudo || "";
+        campoBlogImagem.value = post.imagem_url || "";
+        campoBlogPublicado.checked = post.publicado === true;
+
+        tituloModalBlog.textContent = "Editar Publicação";
+        botaoSalvarBlog.textContent = "Salvar Alterações";
+
+        modalBlog?.show();
+    }
+
+    // ----- FIM - EDITAR PUBLICACAO -----
+
+
+    // ----- INICIO - EXCLUIR PUBLICACAO -----
+
+    async function excluirPostBlog(post, botao) {
+
+        const confirmado = window.confirm(
+            `Deseja realmente excluir a publicação "${post.titulo}"?`
+        );
+
+        if (!confirmado) return;
+
+        botao.disabled = true;
+
+        try {
+
+            const resultado = await requisitar(
+                `/api/admin/blog/${post.id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            mostrarAviso(avisoBlog, resultado.mensagem);
+
+            await carregarBlog();
+
+        } catch (erro) {
+
+            mostrarAviso(
+                avisoBlog,
+                erro.message,
+                "danger"
+            );
+
+            botao.disabled = false;
+        }
+    }
+
+    // ----- FIM - EXCLUIR PUBLICACAO -----
+
+
+    // ----- INICIO - PREENCHER TABELA DO BLOG -----
+
+    function preencherBlog(posts) {
+
+        if (!tabelaBlog) return;
+
+        tabelaBlog.replaceChildren();
+
+        if (!Array.isArray(posts) || posts.length === 0) {
+
+            const linha = document.createElement("tr");
+            const celula = criarCelula(
+                "Nenhuma publicação cadastrada."
+            );
+
+            celula.colSpan = 6;
+            celula.className = "text-center";
+
+            linha.appendChild(celula);
+            tabelaBlog.appendChild(linha);
+
+            return;
+        }
+
+        posts.forEach(post => {
+
+            const linha = document.createElement("tr");
+
+            linha.appendChild(criarCelula(post.id));
+            linha.appendChild(criarCelula(post.titulo));
+
+            const celulaResumo = criarCelula(post.resumo);
+            celulaResumo.classList.add("text-break");
+            linha.appendChild(celulaResumo);
+
+            linha.appendChild(
+                criarCelula(formatarData(post.criado_em))
+            );
+
+            const celulaStatus = document.createElement("td");
+            const etiqueta = document.createElement("span");
+
+            etiqueta.className = post.publicado
+                ? "badge bg-success"
+                : "badge bg-secondary";
+
+            etiqueta.textContent = post.publicado
+                ? "Publicado"
+                : "Rascunho";
+
+            celulaStatus.appendChild(etiqueta);
+            linha.appendChild(celulaStatus);
+
+            // ----- INICIO - BOTOES DE ACAO -----
+
+            const celulaAcoes = document.createElement("td");
+            celulaAcoes.className = "text-nowrap";
+
+            const botaoEditar = document.createElement("button");
+
+            botaoEditar.type = "button";
+            botaoEditar.className =
+                "btn btn-sm btn-outline-primary me-2 mb-1";
+
+            botaoEditar.textContent = "Editar";
+
+            botaoEditar.addEventListener("click", () => {
+                editarPostBlog(post);
+            });
+
+            const botaoExcluir = document.createElement("button");
+
+            botaoExcluir.type = "button";
+            botaoExcluir.className =
+                "btn btn-sm btn-outline-danger mb-1";
+
+            botaoExcluir.textContent = "Excluir";
+
+            botaoExcluir.addEventListener("click", () => {
+                excluirPostBlog(post, botaoExcluir);
+            });
+
+            celulaAcoes.appendChild(botaoEditar);
+            celulaAcoes.appendChild(botaoExcluir);
+
+            linha.appendChild(celulaAcoes);
+
+            // ----- FIM - BOTOES DE ACAO -----
+
+            tabelaBlog.appendChild(linha);
+        });
+    }
+
+    // ----- FIM - PREENCHER TABELA DO BLOG -----
+
+
+    // ----- INICIO - CARREGAR BLOG DO SUPABASE -----
+
+    async function carregarBlog() {
+
+        const dados = await requisitar("/api/admin/blog");
+
+        preencherBlog(dados.posts || []);
+    }
+
+    // ----- FIM - CARREGAR BLOG DO SUPABASE -----
+
+
+    // ----- INICIO - SALVAR PUBLICACAO -----
+
+    formularioBlog?.addEventListener("submit", async evento => {
+
+        evento.preventDefault();
+
+        const id = campoBlogId.value;
+
+        const dados = {
+            titulo: campoBlogTitulo.value.trim(),
+            resumo: campoBlogResumo.value.trim(),
+            conteudo: campoBlogConteudo.value.trim(),
+            imagem_url: campoBlogImagem.value.trim() || null,
+            publicado: campoBlogPublicado.checked
+        };
+
+        erroFormularioBlog.classList.add("d-none");
+
+        botaoSalvarBlog.disabled = true;
+        botaoSalvarBlog.textContent = "Salvando...";
+
+        let salvou = false;
+
+        try {
+
+            const resultado = await requisitar(
+                id
+                    ? `/api/admin/blog/${id}`
+                    : "/api/admin/blog",
+                {
+                    method: id ? "PUT" : "POST",
+                    body: JSON.stringify(dados)
+                }
+            );
+
+            salvou = true;
+
+            modalBlog?.hide();
+
+            mostrarAviso(avisoBlog, resultado.mensagem);
+
+            await carregarBlog();
+
+        } catch (erro) {
+
+            if (salvou) {
+
+                mostrarAviso(
+                    avisoBlog,
+                    "Publicação salva, mas não foi possível atualizar a tabela.",
+                    "warning"
+                );
+
+            } else {
+
+                erroFormularioBlog.textContent = erro.message;
+                erroFormularioBlog.classList.remove("d-none");
+            }
+
+        } finally {
+
+            botaoSalvarBlog.disabled = false;
+
+            botaoSalvarBlog.textContent = campoBlogId.value
+                ? "Salvar Alterações"
+                : "Salvar Publicação";
+        }
+    });
+
+    // ----- FIM - SALVAR PUBLICACAO -----
+
+    // ----- FIM - GERENCIAMENTO DO BLOG -----
 
     // INICIO - CARREGAR DADOS DO PAINEL
 
@@ -1709,6 +2083,31 @@ if (contadorAtivos) {
                 );
             }
         }
+      
+        // ----- INICIO - CARREGAR BLOG NO PAINEL -----
+
+        try {
+
+            await carregarBlog();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar blog:",
+                erro.message
+            );
+
+            exibirErroTabela("tabela-blog", 6);
+
+            mostrarAviso(
+                avisoBlog,
+                "Não foi possível carregar as publicações.",
+                "danger"
+            );
+        }
+
+        // ----- FIM - CARREGAR BLOG NO PAINEL -----
+
     }
 
     // FIM - CARREGAR DADOS DO PAINEL

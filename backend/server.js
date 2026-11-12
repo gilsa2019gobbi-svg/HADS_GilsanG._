@@ -2321,6 +2321,378 @@ app.patch(
 
 // ----- FIM - ATIVAR OU DESATIVAR BARBEIRO -----
 
+
+ // ----- INICIO - VALIDAR DADOS DO BLOG -----
+
+function validarPostBlog(dados) {
+
+    const {
+        titulo,
+        resumo,
+        conteudo,
+        imagem_url,
+        publicado
+    } = dados || {};
+
+    if (
+        typeof titulo !== "string" ||
+        typeof resumo !== "string" ||
+        typeof conteudo !== "string" ||
+        !titulo.trim() ||
+        !resumo.trim() ||
+        !conteudo.trim() ||
+        titulo.trim().length > 200 ||
+        resumo.trim().length > 1000 ||
+        conteudo.trim().length > 10000 ||
+        typeof publicado !== "boolean"
+    ) {
+        return null;
+    }
+
+    let imagem = null;
+
+    if (imagem_url != null && imagem_url !== "") {
+
+        if (
+            typeof imagem_url !== "string" ||
+            imagem_url.length > 2000
+        ) {
+            return null;
+        }
+
+        try {
+            const url = new URL(imagem_url);
+
+            if (!["http:", "https:"].includes(url.protocol)) {
+                return null;
+            }
+
+            imagem = url.toString();
+
+        } catch {
+            return null;
+        }
+    }
+
+    return {
+        titulo: titulo.trim(),
+        resumo: resumo.trim(),
+        conteudo: conteudo.trim(),
+        imagem_url: imagem,
+        publicado
+    };
+}
+
+// ----- FIM - VALIDAR DADOS DO BLOG -----
+
+
+// ----- INICIO - LISTAR BLOG PUBLICO -----
+
+app.get("/api/blog", async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(
+            `SELECT
+                id,
+                titulo,
+                resumo,
+                conteudo,
+                imagem_url,
+                criado_em
+             FROM public.blog_posts
+             WHERE publicado = TRUE
+             ORDER BY criado_em DESC, id DESC
+             LIMIT 20`
+        );
+
+        return res.status(200).json({
+            posts: resultado.rows
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao listar blog:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao consultar publicações."
+        });
+    }
+});
+
+// ----- FIM - LISTAR BLOG PUBLICO -----
+
+
+
+ // ----- INICIO - CONSULTAR ARTIGO DO BLOG -----
+
+app.get("/api/blog/:id", async (req, res) => {
+
+    const id = Number(req.params.id);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(400).json({
+            mensagem: "ID do artigo inválido."
+        });
+    }
+
+    try {
+
+        const resultado = await pool.query(
+            `SELECT
+                id,
+                titulo,
+                resumo,
+                conteudo,
+                imagem_url,
+                criado_em
+             FROM public.blog_posts
+             WHERE id = $1
+               AND publicado = TRUE`,
+            [id]
+        );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({
+                mensagem: "Artigo não encontrado."
+            });
+        }
+
+        return res.status(200).json({
+            post: resultado.rows[0]
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao consultar artigo:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao consultar artigo."
+        });
+    }
+});
+
+// ----- FIM - CONSULTAR ARTIGO DO BLOG -----
+
+
+// ----- INICIO - LISTAR BLOG ADMIN -----
+
+app.get(
+    "/api/admin/blog",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        try {
+
+            const resultado = await pool.query(
+                `SELECT
+                    id,
+                    titulo,
+                    resumo,
+                    conteudo,
+                    imagem_url,
+                    publicado,
+                    criado_em,
+                    atualizado_em
+                 FROM public.blog_posts
+                 ORDER BY criado_em DESC, id DESC
+                 LIMIT 500`
+            );
+
+            return res.status(200).json({
+                posts: resultado.rows
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao listar blog administrativo:",
+                erro.message
+            );
+
+            return res.status(500).json({
+                mensagem: "Erro ao consultar publicações."
+            });
+        }
+    }
+);
+
+// ----- FIM - LISTAR BLOG ADMIN -----
+
+
+// ----- INICIO - CADASTRAR PUBLICACAO -----
+
+app.post(
+    "/api/admin/blog",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        const dados = validarPostBlog(req.body);
+
+        if (!dados) {
+            return res.status(400).json({
+                mensagem: "Preencha corretamente os dados da publicação."
+            });
+        }
+
+        try {
+
+            const resultado = await pool.query(
+                `INSERT INTO public.blog_posts
+                    (titulo, resumo, conteudo, imagem_url, publicado)
+                 VALUES ($1, $2, $3, $4, $5)
+                 RETURNING *`,
+                [
+                    dados.titulo,
+                    dados.resumo,
+                    dados.conteudo,
+                    dados.imagem_url,
+                    dados.publicado
+                ]
+            );
+
+            return res.status(201).json({
+                mensagem: "Publicação cadastrada com sucesso!",
+                post: resultado.rows[0]
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao cadastrar publicação:",
+                erro.message
+            );
+
+            return res.status(500).json({
+                mensagem: "Erro ao cadastrar publicação."
+            });
+        }
+    }
+);
+
+// ----- FIM - CADASTRAR PUBLICACAO -----
+
+
+// ----- INICIO - EDITAR PUBLICACAO -----
+
+app.put(
+    "/api/admin/blog/:id",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        const id = Number(req.params.id);
+        const dados = validarPostBlog(req.body);
+
+        if (!Number.isSafeInteger(id) || id <= 0 || !dados) {
+            return res.status(400).json({
+                mensagem: "ID ou dados da publicação inválidos."
+            });
+        }
+
+        try {
+
+            const resultado = await pool.query(
+                `UPDATE public.blog_posts
+                 SET titulo = $1,
+                     resumo = $2,
+                     conteudo = $3,
+                     imagem_url = $4,
+                     publicado = $5,
+                     atualizado_em = NOW()
+                 WHERE id = $6
+                 RETURNING *`,
+                [
+                    dados.titulo,
+                    dados.resumo,
+                    dados.conteudo,
+                    dados.imagem_url,
+                    dados.publicado,
+                    id
+                ]
+            );
+
+            if (resultado.rowCount === 0) {
+                return res.status(404).json({
+                    mensagem: "Publicação não encontrada."
+                });
+            }
+
+            return res.status(200).json({
+                mensagem: "Publicação atualizada com sucesso!",
+                post: resultado.rows[0]
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao editar publicação:",
+                erro.message
+            );
+
+            return res.status(500).json({
+                mensagem: "Erro ao atualizar publicação."
+            });
+        }
+    }
+);
+
+// ----- FIM - EDITAR PUBLICACAO -----
+
+
+// ----- INICIO - EXCLUIR PUBLICACAO -----
+
+app.delete(
+    "/api/admin/blog/:id",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return res.status(400).json({
+                mensagem: "ID da publicação inválido."
+            });
+        }
+
+        try {
+
+            const resultado = await pool.query(
+                `DELETE FROM public.blog_posts
+                 WHERE id = $1
+                 RETURNING id`,
+                [id]
+            );
+
+            if (resultado.rowCount === 0) {
+                return res.status(404).json({
+                    mensagem: "Publicação não encontrada."
+                });
+            }
+
+            return res.status(200).json({
+                mensagem: "Publicação excluída com sucesso!"
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao excluir publicação:",
+                erro.message
+            );
+
+            return res.status(500).json({
+                mensagem: "Erro ao excluir publicação."
+            });
+        }
+    }
+);
+
+// ----- FIM - EXCLUIR PUBLICACAO -----
+
 // ----- INICIO - INICIAR SERVIDOR -----
 
 app.listen(PORT, () => {
