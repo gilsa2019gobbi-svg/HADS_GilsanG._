@@ -18,10 +18,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const formularioBarbeiro = document.getElementById("form-barbeiro");
     const tituloModalBarbeiro = document.getElementById("titulo-modal-barbeiro");
 
+    
+    // ----- INICIO - CAMPOS DO BARBEIRO -----
+
     const campoBarbeiroId = document.getElementById("barbeiro-id");
     const campoBarbeiroNome = document.getElementById("barbeiro-nome");
     const campoBarbeiroWhatsapp = document.getElementById("barbeiro-whatsapp");
     const campoBarbeiroEspecialidade = document.getElementById("barbeiro-especialidade");
+
+    // ----- INICIO - FOTO DO BARBEIRO -----
+
+    const campoBarbeiroFoto = document.getElementById("barbeiro-foto");
+
+    const previewFotoBarbeiro = document.getElementById(
+        "barbeiro-foto-preview"
+    );
+
+    const containerPreviewFoto = document.getElementById(
+        "barbeiro-foto-preview-container"
+    );
+
+    // ----- FIM - FOTO DO BARBEIRO -----
+
+    // ----- FIM - CAMPOS DO BARBEIRO -----
+
 
     const erroFormularioBarbeiro = document.getElementById("erro-form-barbeiro");
     const botaoSalvarBarbeiro = document.getElementById("btn-salvar-barbeiro");
@@ -241,10 +261,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         const resposta = await fetch(`${API}${caminho}`, {
             ...opcoes,
             credentials: "include",
+
+          
+            // ----- INICIO - CONFIGURAR CABECALHOS DA REQUISICAO -----
+
             headers: {
-                ...(opcoes.body ? { "Content-Type": "application/json" } : {}),
+                ...(opcoes.body && !(opcoes.body instanceof FormData)
+                    ? { "Content-Type": "application/json" }
+                    : {}),
                 ...(opcoes.headers || {})
             }
+
+            // ----- FIM - CONFIGURAR CABECALHOS DA REQUISICAO -----
+
         });
 
         const tipo = resposta.headers.get("content-type") || "";
@@ -717,6 +746,81 @@ function atualizarDashboardAgendamentos(registros) {
 
     // INICIO - BARBEIROS
 
+    // ----- INICIO - PREVIA DA FOTO DO BARBEIRO -----
+
+    campoBarbeiroFoto?.addEventListener("change", () => {
+
+        const arquivo = campoBarbeiroFoto.files[0];
+
+        // ----- INICIO - LIMPAR PREVIA -----
+
+        previewFotoBarbeiro.removeAttribute("src");
+        containerPreviewFoto.classList.add("d-none");
+
+        limparErroFormulario(erroFormularioBarbeiro);
+
+        if (!arquivo) return;
+
+        // ----- FIM - LIMPAR PREVIA -----
+
+
+        // ----- INICIO - VALIDAR FOTO -----
+
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        const tamanhoMaximo = 2 * 1024 * 1024;
+
+        if (!tiposPermitidos.includes(arquivo.type)) {
+
+            mostrarErroFormulario(
+                erroFormularioBarbeiro,
+                "Selecione uma imagem JPG, PNG ou WEBP."
+            );
+
+            campoBarbeiroFoto.value = "";
+            return;
+        }
+
+        if (arquivo.size > tamanhoMaximo) {
+
+            mostrarErroFormulario(
+                erroFormularioBarbeiro,
+                "A foto deve ter no máximo 2 MB."
+            );
+
+            campoBarbeiroFoto.value = "";
+            return;
+        }
+
+        // ----- FIM - VALIDAR FOTO -----
+
+
+        // ----- INICIO - EXIBIR FOTO -----
+
+        const leitor = new FileReader();
+
+        leitor.onload = () => {
+
+            previewFotoBarbeiro.src = leitor.result;
+
+            containerPreviewFoto.classList.remove("d-none");
+
+        };
+
+        leitor.readAsDataURL(arquivo);
+
+        // ----- FIM - EXIBIR FOTO -----
+
+    });
+
+    // ----- FIM - PREVIA DA FOTO DO BARBEIRO -----
+
+    // ----- INICIO - LIMPAR FORMULARIO BARBEIRO -----
+
     function limparFormularioBarbeiro() {
 
         if (!formularioBarbeiro) return;
@@ -724,11 +828,32 @@ function atualizarDashboardAgendamentos(registros) {
         formularioBarbeiro.reset();
 
         campoBarbeiroId.value = "";
+
         tituloModalBarbeiro.textContent = "Novo Barbeiro";
         botaoSalvarBarbeiro.textContent = "Salvar Barbeiro";
 
+        // ----- INICIO - LIMPAR FOTO -----
+
+        if (campoBarbeiroFoto) {
+            campoBarbeiroFoto.value = "";
+        }
+
+        if (previewFotoBarbeiro) {
+            previewFotoBarbeiro.removeAttribute("src");
+        }
+
+        if (containerPreviewFoto) {
+            containerPreviewFoto.classList.add("d-none");
+        }
+
+        // ----- FIM - LIMPAR FOTO -----
+
         limparErroFormulario(erroFormularioBarbeiro);
+
     }
+
+    // ----- FIM - LIMPAR FORMULARIO BARBEIRO -----
+
 
     botaoNovoBarbeiro?.addEventListener("click", () => {
 
@@ -736,9 +861,14 @@ function atualizarDashboardAgendamentos(registros) {
         limparAviso(avisoBarbeiros);
     });
 
+  
+    // ----- INICIO - EDITAR BARBEIRO -----
+
     function editarBarbeiro(barbeiro) {
 
         limparErroFormulario(erroFormularioBarbeiro);
+
+        // ----- INICIO - PREENCHER DADOS -----
 
         campoBarbeiroId.value = barbeiro.id;
         campoBarbeiroNome.value = barbeiro.nome || "";
@@ -748,8 +878,47 @@ function atualizarDashboardAgendamentos(registros) {
         tituloModalBarbeiro.textContent = "Editar Barbeiro";
         botaoSalvarBarbeiro.textContent = "Salvar Alterações";
 
+        // ----- FIM - PREENCHER DADOS -----
+
+
+        // ----- INICIO - VERIFICAR FOTO ATUAL -----
+
+        if (campoBarbeiroFoto) {
+            campoBarbeiroFoto.value = "";
+        }
+
+        if (previewFotoBarbeiro) {
+            previewFotoBarbeiro.removeAttribute("src");
+        }
+
+        if (containerPreviewFoto) {
+            containerPreviewFoto.classList.add("d-none");
+        }
+
+        if (
+            barbeiro.foto_url &&
+            /^https?:\/\//i.test(barbeiro.foto_url)
+        ) {
+
+            previewFotoBarbeiro.src = barbeiro.foto_url;
+
+            containerPreviewFoto.classList.remove("d-none");
+
+        }
+
+        // ----- FIM - VERIFICAR FOTO ATUAL -----
+
+
+        // ----- INICIO - ABRIR MODAL -----
+
         modalBarbeiro?.show();
+
+        // ----- FIM - ABRIR MODAL -----
+
     }
+
+    // ----- FIM - EDITAR BARBEIRO -----
+
 
     async function alterarStatusBarbeiro(barbeiro, botao) {
 
@@ -936,15 +1105,55 @@ if (contadorAtivos) {
 
         try {
 
+          
+            // ----- INICIO - PREPARAR ENVIO DO BARBEIRO -----
+
+            const arquivoFoto = campoBarbeiroFoto?.files?.[0] || null;
+
+           
+
+            let corpoEnvio;
+
+            if (arquivoFoto) {
+
+                // ----- INICIO - ENVIAR DADOS COM FOTO -----
+
+                corpoEnvio = new FormData();
+
+                corpoEnvio.append("nome", dados.nome);
+                corpoEnvio.append("whatsapp", dados.whatsapp);
+                corpoEnvio.append("especialidade", dados.especialidade);
+                corpoEnvio.append("foto", arquivoFoto);
+
+                // ----- FIM - ENVIAR DADOS COM FOTO -----
+
+            } else {
+
+                // ----- INICIO - ENVIAR DADOS SEM FOTO -----
+
+                corpoEnvio = JSON.stringify(dados);
+
+                // ----- FIM - ENVIAR DADOS SEM FOTO -----
+
+            }
+
+            // ----- FIM - PREPARAR ENVIO DO BARBEIRO -----
+
+
+            // ----- INICIO - SALVAR BARBEIRO NA API -----
+
             const resultado = await requisitar(
                 id
                     ? `/api/admin/barbeiros/${id}`
                     : "/api/admin/barbeiros",
                 {
                     method: id ? "PUT" : "POST",
-                    body: JSON.stringify(dados)
+                    body: corpoEnvio
                 }
             );
+
+            // ----- FIM - SALVAR BARBEIRO NA API -----
+
 
             salvou = true;
 
@@ -1953,6 +2162,285 @@ if (contadorAtivos) {
 
     // ----- FIM - GERENCIAMENTO DO BLOG -----
 
+    // ----- INICIO - GERENCIAMENTO DE AVALIACOES -----
+
+    const tabelaAvaliacoes = document.getElementById("tabela-avaliacoes");
+    const avisoAvaliacoes = document.getElementById("aviso-avaliacoes");
+    const botaoAtualizarAvaliacoes = document.getElementById(
+        "btn-atualizar-avaliacoes"
+    );
+
+    // ----- INICIO - PREENCHER TABELA DE AVALIACOES -----
+
+    function preencherAvaliacoes(registros) {
+
+        if (!tabelaAvaliacoes) return;
+
+        tabelaAvaliacoes.replaceChildren();
+
+        if (!Array.isArray(registros) || registros.length === 0) {
+
+            const linha = document.createElement("tr");
+            const celula = criarCelula("Nenhuma avaliação cadastrada.");
+
+            celula.colSpan = 7;
+            celula.className = "text-center";
+
+            linha.appendChild(celula);
+            tabelaAvaliacoes.appendChild(linha);
+
+            return;
+        }
+
+        registros.forEach(avaliacao => {
+
+            const linha = document.createElement("tr");
+
+            // ----- INICIO - DADOS DO USUARIO -----
+
+            linha.appendChild(criarCelula(avaliacao.id));
+            linha.appendChild(criarCelula(avaliacao.nome));
+
+            // ----- FIM - DADOS DO USUARIO -----
+
+
+            // ----- INICIO - ESTRELAS -----
+
+            const celulaNota = document.createElement("td");
+            const estrelas = document.createElement("span");
+
+            const nota = Number(avaliacao.nota);
+
+            estrelas.textContent =
+                "★".repeat(Math.max(0, Math.min(5, nota))) +
+                "☆".repeat(Math.max(0, 5 - nota));
+
+            estrelas.className = "fs-5";
+            estrelas.style.color = "#e5a000";
+
+            celulaNota.appendChild(estrelas);
+            linha.appendChild(celulaNota);
+
+            // ----- FIM - ESTRELAS -----
+
+
+            // ----- INICIO - COMENTARIO E DATA -----
+
+            const celulaComentario = criarCelula(avaliacao.comentario);
+            celulaComentario.classList.add("text-break");
+
+            linha.appendChild(celulaComentario);
+
+            linha.appendChild(
+                criarCelula(formatarData(avaliacao.criado_em))
+            );
+
+            // ----- FIM - COMENTARIO E DATA -----
+
+
+            // ----- INICIO - STATUS -----
+
+            const celulaStatus = document.createElement("td");
+            const etiqueta = document.createElement("span");
+
+            etiqueta.className = avaliacao.aprovado
+                ? "badge bg-success"
+                : "badge bg-warning text-dark";
+
+            etiqueta.textContent = avaliacao.aprovado
+                ? "Aprovada"
+                : "Pendente";
+
+            celulaStatus.appendChild(etiqueta);
+            linha.appendChild(celulaStatus);
+
+            // ----- FIM - STATUS -----
+
+
+            // ----- INICIO - ACOES -----
+
+            const celulaAcoes = document.createElement("td");
+            celulaAcoes.className = "text-nowrap";
+
+            if (!avaliacao.aprovado) {
+
+                const botaoAprovar = document.createElement("button");
+
+                botaoAprovar.type = "button";
+                botaoAprovar.className =
+                    "btn btn-sm btn-outline-success me-2 mb-1";
+
+                botaoAprovar.textContent = "Aprovar";
+
+                botaoAprovar.addEventListener("click", () => {
+                    aprovarAvaliacao(avaliacao, botaoAprovar);
+                });
+
+                celulaAcoes.appendChild(botaoAprovar);
+            }
+
+            const botaoExcluir = document.createElement("button");
+
+            botaoExcluir.type = "button";
+            botaoExcluir.className =
+                "btn btn-sm btn-outline-danger mb-1";
+
+            botaoExcluir.textContent = "Excluir";
+
+            botaoExcluir.addEventListener("click", () => {
+                excluirAvaliacao(avaliacao, botaoExcluir);
+            });
+
+            celulaAcoes.appendChild(botaoExcluir);
+
+            linha.appendChild(celulaAcoes);
+
+            // ----- FIM - ACOES -----
+
+            tabelaAvaliacoes.appendChild(linha);
+        });
+    }
+
+    // ----- FIM - PREENCHER TABELA DE AVALIACOES -----
+
+
+    // ----- INICIO - CARREGAR AVALIACOES -----
+
+    async function carregarAvaliacoes() {
+
+        if (!tabelaAvaliacoes) return;
+
+        const dados = await requisitar("/api/admin/depoimentos");
+
+        preencherAvaliacoes(dados.depoimentos || []);
+    }
+
+    // ----- FIM - CARREGAR AVALIACOES -----
+
+
+    // ----- INICIO - APROVAR AVALIACAO -----
+
+    async function aprovarAvaliacao(avaliacao, botao) {
+
+        const confirmado = window.confirm(
+            `Deseja aprovar a avaliação de ${avaliacao.nome}?`
+        );
+
+        if (!confirmado) return;
+
+        botao.disabled = true;
+
+        try {
+
+            const resultado = await requisitar(
+                `/api/admin/depoimentos/${avaliacao.id}/aprovar`,
+                {
+                    method: "PATCH"
+                }
+            );
+
+            await carregarAvaliacoes();
+
+            mostrarAviso(
+                avisoAvaliacoes,
+                resultado.mensagem
+            );
+
+        } catch (erro) {
+
+            mostrarAviso(
+                avisoAvaliacoes,
+                erro.message,
+                "danger"
+            );
+
+            botao.disabled = false;
+        }
+    }
+
+    // ----- FIM - APROVAR AVALIACAO -----
+
+
+    // ----- INICIO - EXCLUIR AVALIACAO -----
+
+    async function excluirAvaliacao(avaliacao, botao) {
+
+        const confirmado = window.confirm(
+            `Deseja realmente excluir a avaliação de ${avaliacao.nome}?`
+        );
+
+        if (!confirmado) return;
+
+        botao.disabled = true;
+
+        try {
+
+            const resultado = await requisitar(
+                `/api/admin/depoimentos/${avaliacao.id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            await carregarAvaliacoes();
+
+            mostrarAviso(
+                avisoAvaliacoes,
+                resultado.mensagem
+            );
+
+        } catch (erro) {
+
+            mostrarAviso(
+                avisoAvaliacoes,
+                erro.message,
+                "danger"
+            );
+
+            botao.disabled = false;
+        }
+    }
+
+    // ----- FIM - EXCLUIR AVALIACAO -----
+
+
+    // ----- INICIO - BOTAO ATUALIZAR -----
+
+    botaoAtualizarAvaliacoes?.addEventListener(
+        "click",
+        async () => {
+
+            botaoAtualizarAvaliacoes.disabled = true;
+
+            try {
+
+                await carregarAvaliacoes();
+
+                mostrarAviso(
+                    avisoAvaliacoes,
+                    "Avaliações atualizadas com sucesso!"
+                );
+
+            } catch (erro) {
+
+                mostrarAviso(
+                    avisoAvaliacoes,
+                    erro.message,
+                    "danger"
+                );
+
+            } finally {
+
+                botaoAtualizarAvaliacoes.disabled = false;
+            }
+        }
+    );
+
+    // ----- FIM - BOTAO ATUALIZAR -----
+
+
+    // ----- FIM - GERENCIAMENTO DE AVALIACOES -----
+
     // INICIO - CARREGAR DADOS DO PAINEL
 
     async function carregarDados() {
@@ -2107,6 +2595,30 @@ if (contadorAtivos) {
         }
 
         // ----- FIM - CARREGAR BLOG NO PAINEL -----
+
+        // ----- INICIO - CARREGAR AVALIACOES NO PAINEL -----
+
+        try {
+
+            await carregarAvaliacoes();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar avaliações:",
+                erro.message
+            );
+
+            exibirErroTabela("tabela-avaliacoes", 7);
+
+            mostrarAviso(
+                avisoAvaliacoes,
+                "Não foi possível carregar as avaliações.",
+                "danger"
+            );
+        }
+
+        // ----- FIM - CARREGAR AVALIACOES NO PAINEL -----
 
     }
 

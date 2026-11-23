@@ -1,6 +1,7 @@
 
 // ----- INICIO - IMPORTACOES -----
 
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -9,11 +10,46 @@ const jwt = require("jsonwebtoken");
 const crypto = require("node:crypto");
 const nodemailer = require("nodemailer");
 
+// ----- INICIO - IMPORTACOES PARA FOTOS DOS BARBEIROS -----
+
+const multer = require("multer");
+
+const { createClient } = require("@supabase/supabase-js");
+
+// ----- FIM - IMPORTACOES PARA FOTOS DOS BARBEIROS -----
+
+
 require("dotenv").config();
 
 const app = express();
 const pool = require("./db");
 
+
+ // ----- INICIO - CONEXAO COM SUPABASE STORAGE -----
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+
+const SUPABASE_SERVICE_ROLE_KEY =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+        "Configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env."
+    );
+}
+
+const supabaseStorage = createClient(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
+    {
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false
+        }
+    }
+);
+
+// ----- FIM - CONEXAO COM SUPABASE STORAGE -----
 
 // ----- INICIO - FRONTEND DO MSBARBEARIAS -----
 
@@ -38,6 +74,143 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: "20kb" }));
+
+ // ----- INICIO - CONFIGURACAO DE FOTOS DOS BARBEIROS -----
+
+const uploadFotoBarbeiro = multer({
+
+    storage: multer.memoryStorage(),
+
+    limits: {
+        fileSize: 2 * 1024 * 1024,
+        files: 1
+    },
+
+    fileFilter: (req, arquivo, callback) => {
+
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!tiposPermitidos.includes(arquivo.mimetype)) {
+
+            return callback(
+                new Error("A foto deve ser JPG, PNG ou WEBP.")
+            );
+
+        }
+
+        callback(null, true);
+
+    }
+
+});
+
+// ----- FIM - CONFIGURACAO DE FOTOS DOS BARBEIROS -----
+
+    // ----- INICIO - ENVIAR FOTO DO BARBEIRO AO SUPABASE -----
+
+    async function salvarFotoBarbeiroNoStorage(arquivo) {
+
+        if (!arquivo || !arquivo.buffer) {
+            throw new Error("Nenhuma foto foi enviada.");
+        }
+
+        // ----- INICIO - VALIDAR CONTEUDO DA IMAGEM -----
+
+        const buffer = arquivo.buffer;
+
+        let tipoImagem = null;
+        let extensao = null;
+
+        if (
+            buffer.length >= 3 &&
+            buffer[0] === 0xff &&
+            buffer[1] === 0xd8 &&
+            buffer[2] === 0xff
+        ) {
+            tipoImagem = "image/jpeg";
+            extensao = "jpg";
+        } else if (
+            buffer.length >= 8 &&
+            buffer.subarray(0, 8).equals(
+                Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+            )
+        ) {
+            tipoImagem = "image/png";
+            extensao = "png";
+        } else if (
+            buffer.length >= 12 &&
+            buffer.toString("ascii", 0, 4) === "RIFF" &&
+            buffer.toString("ascii", 8, 12) === "WEBP"
+        ) {
+            tipoImagem = "image/webp";
+            extensao = "webp";
+        }
+
+        if (
+            !tipoImagem ||
+            tipoImagem !== arquivo.mimetype
+        ) {
+            throw new Error(
+                "Imagem inválida. Envie uma foto JPG, PNG ou WEBP."
+            );
+        }
+
+        // ----- FIM - VALIDAR CONTEUDO DA IMAGEM -----
+
+
+        // ----- INICIO - GERAR NOME UNICO -----
+
+        const nomeArquivo = `${crypto.randomUUID()}.${extensao}`;
+
+        const caminhoArquivo = `barbeiros/${nomeArquivo}`;
+
+        // ----- FIM - GERAR NOME UNICO -----
+
+
+        // ----- INICIO - ENVIAR AO STORAGE -----
+
+        const { error } = await supabaseStorage.storage
+            .from("fotos-barbeiros")
+            .upload(caminhoArquivo, buffer, {
+                contentType: tipoImagem,
+                cacheControl: "3600",
+                upsert: false
+            });
+
+        if (error) {
+            console.error(
+                "Erro no Supabase Storage:",
+                error.message
+            );
+
+            throw new Error(
+                "Não foi possível armazenar a foto do barbeiro."
+            );
+        }
+
+        // ----- FIM - ENVIAR AO STORAGE -----
+
+
+        // ----- INICIO - OBTER URL PUBLICA -----
+
+        const { data } = supabaseStorage.storage
+            .from("fotos-barbeiros")
+            .getPublicUrl(caminhoArquivo);
+
+        return {
+            foto_url: data.publicUrl,
+            caminho: caminhoArquivo
+        };
+
+        // ----- FIM - OBTER URL PUBLICA -----
+
+    }
+
+    // ----- FIM - ENVIAR FOTO DO BARBEIRO AO SUPABASE -----
 
 const PORT = process.env.PORT || 3000;
 
@@ -811,9 +984,11 @@ app.post("/api/redefinir-senha", async (req, res) => {
 app.get("/api/me", autenticar, async (req, res) => {
     try {
         const resultado = await pool.query(
-            `SELECT id, nome, email, whatsapp
-             FROM public.usuarios
-             WHERE id = $1`,
+            
+`SELECT id, nome, email, whatsapp, perfil
+ FROM public.usuarios
+ WHERE id = $1`,
+
             [req.usuario.id]
         );
 
@@ -898,16 +1073,23 @@ app.get(
     verificarAdmin,
     async (req, res) => {
         try {
+  
+            // ----- INICIO - LISTAR BARBEIROS COM FOTO -----
+
             const resultado = await pool.query(
                 `SELECT
                     id,
                     nome,
                     whatsapp,
                     especialidade,
+                    foto_url,
                     ativo
                  FROM public.barbeiros
                  ORDER BY nome ASC`
             );
+
+            // ----- FIM - LISTAR BARBEIROS COM FOTO -----
+
 
             return res.status(200).json({
                 barbeiros: resultado.rows
@@ -932,12 +1114,21 @@ app.get(
 
 app.get("/api/barbeiros", async (req, res) => {
     try {
-        const resultado = await pool.query(
-            `SELECT id, nome, especialidade
-             FROM public.barbeiros
-             WHERE ativo = TRUE
-             ORDER BY nome ASC`
-        );
+        
+            // ----- INICIO - LISTAR BARBEIROS COM FOTO -----
+
+            const resultado = await pool.query(
+                `SELECT
+                    id,
+                    nome,
+                    especialidade,
+                    foto_url
+                 FROM public.barbeiros
+                 WHERE ativo = TRUE
+                 ORDER BY nome ASC`
+            );
+
+            // ----- FIM - LISTAR BARBEIROS COM FOTO -----
 
         return res.status(200).json({
             mensagem: "Barbeiros encontrados com sucesso!",
@@ -2140,69 +2331,221 @@ function validarBarbeiro(dados) {
 
 // ----- FIM - VALIDAR DADOS DOS BARBEIROS -----
 
+
 // ----- INICIO - CADASTRAR BARBEIRO ADMIN -----
 
 app.post(
     "/api/admin/barbeiros",
     autenticar,
     verificarAdmin,
+
+    // ----- INICIO - RECEBER FOTO -----
+
+    (req, res, next) => {
+
+        uploadFotoBarbeiro.single("foto")(
+            req,
+            res,
+            erro => {
+
+                if (erro) {
+
+                    const mensagem =
+                        erro.code === "LIMIT_FILE_SIZE"
+                            ? "A foto deve ter no máximo 2 MB."
+                            : erro.code === "LIMIT_UNEXPECTED_FILE"
+                                ? "Envie apenas uma foto no campo correto."
+                                : erro.message;
+
+                    return res.status(400).json({
+                        mensagem
+                    });
+                }
+
+                next();
+            }
+        );
+    },
+
+    // ----- FIM - RECEBER FOTO -----
+
+
     async (req, res) => {
+
+        let caminhoFoto = null;
+
         try {
+
+            // ----- INICIO - VALIDAR DADOS -----
+
             const dados = validarBarbeiro(req.body);
 
             if (!dados) {
+
                 return res.status(400).json({
-                    mensagem:
-                        "Informe os dados válidos do barbeiro."
+                    mensagem: "Informe os dados válidos do barbeiro."
                 });
+
             }
+
+            // ----- FIM - VALIDAR DADOS -----
+
+
+            // ----- INICIO - SALVAR FOTO NO SUPABASE -----
+
+            let fotoUrl = null;
+
+            if (req.file) {
+
+                const foto = await salvarFotoBarbeiroNoStorage(
+                    req.file
+                );
+
+                fotoUrl = foto.foto_url;
+                caminhoFoto = foto.caminho;
+
+            }
+
+            // ----- FIM - SALVAR FOTO NO SUPABASE -----
+
+
+            // ----- INICIO - CADASTRAR BARBEIRO NO BANCO -----
 
             const resultado = await pool.query(
                 `INSERT INTO public.barbeiros
-                    (nome, whatsapp, especialidade)
-                 VALUES ($1, $2, $3)
+                    (
+                        nome,
+                        whatsapp,
+                        especialidade,
+                        foto_url
+                    )
+                 VALUES ($1, $2, $3, $4)
                  RETURNING
                     id,
                     nome,
                     whatsapp,
                     especialidade,
+                    foto_url,
                     ativo`,
                 [
                     dados.nome,
                     dados.whatsapp,
-                    dados.especialidade
+                    dados.especialidade,
+                    fotoUrl
                 ]
             );
 
+            // ----- FIM - CADASTRAR BARBEIRO NO BANCO -----
+
+
             return res.status(201).json({
-                mensagem:
-                    "Barbeiro cadastrado com sucesso!",
+                mensagem: "Barbeiro cadastrado com sucesso!",
                 barbeiro: resultado.rows[0]
             });
 
         } catch (erro) {
+
+            // ----- INICIO - LIMPAR FOTO SE O CADASTRO FALHAR -----
+
+            if (caminhoFoto) {
+
+                try {
+
+                    const { error: erroRemocao } =
+                        await supabaseStorage.storage
+                            .from("fotos-barbeiros")
+                            .remove([caminhoFoto]);
+
+                    if (erroRemocao) {
+                        console.error(
+                            "Erro ao remover foto:",
+                            erroRemocao.message
+                        );
+                    }
+
+                } catch (erroLimpeza) {
+
+                    console.error(
+                        "Erro ao limpar foto:",
+                        erroLimpeza.message
+                    );
+
+                }
+            }
+
+            // ----- FIM - LIMPAR FOTO SE O CADASTRO FALHAR -----
+
+
             console.error(
                 "Erro ao cadastrar barbeiro:",
                 erro.message
             );
 
+            if (erro.message.startsWith("Imagem inválida")) {
+
+                return res.status(400).json({
+                    mensagem: erro.message
+                });
+
+            }
+
             return res.status(500).json({
                 mensagem: "Erro ao cadastrar barbeiro."
             });
+
         }
     }
 );
 
 // ----- FIM - CADASTRAR BARBEIRO ADMIN -----
 
-// ----- INICIO - EDITAR BARBEIRO ADMIN -----
+
+
+ // ----- INICIO - EDITAR BARBEIRO ADMIN -----
 
 app.put(
     "/api/admin/barbeiros/:id",
     autenticar,
     verificarAdmin,
+
+    // ----- INICIO - RECEBER FOTO -----
+
+    (req, res, next) => {
+
+        uploadFotoBarbeiro.single("foto")(
+            req,
+            res,
+            erro => {
+
+                if (erro) {
+
+                    const mensagem =
+                        erro.code === "LIMIT_FILE_SIZE"
+                            ? "A foto deve ter no máximo 2 MB."
+                            : erro.code === "LIMIT_UNEXPECTED_FILE"
+                                ? "Envie apenas uma foto no campo correto."
+                                : erro.message;
+
+                    return res.status(400).json({
+                        mensagem
+                    });
+                }
+
+                next();
+            }
+        );
+    },
+
+    // ----- FIM - RECEBER FOTO -----
+
     async (req, res) => {
+
+        let caminhoFotoNova = null;
+
         try {
+
+            // ----- INICIO - VALIDAR DADOS -----
+
             const id = Number(req.params.id);
             const dados = validarBarbeiro(req.body);
 
@@ -2216,52 +2559,153 @@ app.put(
                 });
             }
 
-            const resultado = await pool.query(
-                `UPDATE public.barbeiros
-                 SET nome = $1,
-                     whatsapp = $2,
-                     especialidade = $3
-                 WHERE id = $4
-                 RETURNING
-                    id,
-                    nome,
-                    whatsapp,
-                    especialidade,
-                    ativo`,
-                [
-                    dados.nome,
-                    dados.whatsapp,
-                    dados.especialidade,
-                    id
-                ]
+            // ----- FIM - VALIDAR DADOS -----
+
+
+            // ----- INICIO - VERIFICAR BARBEIRO -----
+
+            const consulta = await pool.query(
+                `SELECT id
+                 FROM public.barbeiros
+                 WHERE id = $1`,
+                [id]
             );
 
-            if (resultado.rowCount === 0) {
+            if (consulta.rowCount === 0) {
                 return res.status(404).json({
                     mensagem: "Barbeiro não encontrado."
                 });
             }
 
+            // ----- FIM - VERIFICAR BARBEIRO -----
+
+
+            // ----- INICIO - ENVIAR NOVA FOTO -----
+
+            let fotoUrl = null;
+
+            if (req.file) {
+
+                const foto = await salvarFotoBarbeiroNoStorage(
+                    req.file
+                );
+
+                fotoUrl = foto.foto_url;
+                caminhoFotoNova = foto.caminho;
+
+            }
+
+            // ----- FIM - ENVIAR NOVA FOTO -----
+
+
+            // ----- INICIO - ATUALIZAR BARBEIRO -----
+
+            const resultado = await pool.query(
+                `UPDATE public.barbeiros
+                 SET nome = $1,
+                     whatsapp = $2,
+                     especialidade = $3,
+                     foto_url = COALESCE($4, foto_url)
+                 WHERE id = $5
+                 RETURNING
+                    id,
+                    nome,
+                    whatsapp,
+                    especialidade,
+                    foto_url,
+                    ativo`,
+                [
+                    dados.nome,
+                    dados.whatsapp,
+                    dados.especialidade,
+                    fotoUrl,
+                    id
+                ]
+            );
+
+            if (resultado.rowCount === 0) {
+
+                const erro = new Error(
+                    "Barbeiro não encontrado."
+                );
+
+                erro.status = 404;
+
+                throw erro;
+            }
+
+            // ----- FIM - ATUALIZAR BARBEIRO -----
+
+
+            // ----- INICIO - RETORNAR RESULTADO -----
+
             return res.status(200).json({
-                mensagem:
-                    "Barbeiro atualizado com sucesso!",
+                mensagem: "Barbeiro atualizado com sucesso!",
                 barbeiro: resultado.rows[0]
             });
 
+            // ----- FIM - RETORNAR RESULTADO -----
+
         } catch (erro) {
+
+            // ----- INICIO - LIMPAR FOTO SE FALHAR -----
+
+            if (caminhoFotoNova) {
+
+                try {
+
+                    const { error: erroRemocao } =
+                        await supabaseStorage.storage
+                            .from("fotos-barbeiros")
+                            .remove([caminhoFotoNova]);
+
+                    if (erroRemocao) {
+                        console.error(
+                            "Erro ao remover foto:",
+                            erroRemocao.message
+                        );
+                    }
+
+                } catch (erroLimpeza) {
+
+                    console.error(
+                        "Erro ao limpar foto:",
+                        erroLimpeza.message
+                    );
+
+                }
+            }
+
+            // ----- FIM - LIMPAR FOTO SE FALHAR -----
+
+
             console.error(
                 "Erro ao editar barbeiro:",
                 erro.message
             );
 
+            if (erro.status === 404) {
+                return res.status(404).json({
+                    mensagem: "Barbeiro não encontrado."
+                });
+            }
+
+            if (erro.message.startsWith("Imagem inválida")) {
+                return res.status(400).json({
+                    mensagem: erro.message
+                });
+            }
+
             return res.status(500).json({
                 mensagem: "Erro ao atualizar barbeiro."
             });
+
         }
     }
 );
 
 // ----- FIM - EDITAR BARBEIRO ADMIN -----
+
 
 // ----- INICIO - ATIVAR OU DESATIVAR BARBEIRO -----
 
@@ -2473,6 +2917,299 @@ app.get("/api/blog/:id", async (req, res) => {
 });
 
 // ----- FIM - CONSULTAR ARTIGO DO BLOG -----
+
+
+// ----- INICIO - LISTAR DEPOIMENTOS APROVADOS -----
+
+app.get("/api/depoimentos", async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(`
+            SELECT
+                d.id,
+                u.nome,
+                d.nota,
+                d.comentario,
+                d.criado_em
+            FROM public.depoimentos d
+            INNER JOIN public.usuarios u
+                ON u.id = d.usuario_id
+            WHERE d.aprovado = TRUE
+            ORDER BY d.criado_em DESC
+        `);
+
+        return res.status(200).json({
+            depoimentos: resultado.rows
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao listar depoimentos:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao carregar depoimentos."
+        });
+
+    }
+
+});
+
+// ----- FIM - LISTAR DEPOIMENTOS APROVADOS -----
+
+
+// ----- INICIO - CADASTRAR DEPOIMENTO -----
+
+app.post("/api/depoimentos", autenticar, async (req, res) => {
+
+    try {
+
+        const nota = req.body?.nota;
+        const comentario = req.body?.comentario;
+
+        // ----- INICIO - VALIDAR DADOS -----
+
+        if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+
+            return res.status(400).json({
+                mensagem: "Informe uma nota de 1 a 5 estrelas."
+            });
+
+        }
+
+        if (
+            typeof comentario !== "string" ||
+            comentario.trim().length < 10 ||
+            comentario.trim().length > 1000
+        ) {
+
+            return res.status(400).json({
+                mensagem: "O comentário deve ter entre 10 e 1000 caracteres."
+            });
+
+        }
+
+        // ----- FIM - VALIDAR DADOS -----
+
+
+        // ----- INICIO - SALVAR NO SUPABASE -----
+
+        const resultado = await pool.query(
+            `INSERT INTO public.depoimentos
+                (usuario_id, nota, comentario, aprovado)
+             VALUES ($1, $2, $3, FALSE)
+             RETURNING id, nota, comentario, aprovado, criado_em`,
+            [
+                req.usuario.id,
+                nota,
+                comentario.trim()
+            ]
+        );
+
+        // ----- FIM - SALVAR NO SUPABASE -----
+
+        return res.status(201).json({
+            mensagem: "Avaliação enviada! Aguardando aprovação.",
+            depoimento: resultado.rows[0]
+        });
+
+    } catch (erro) {
+
+        if (erro.code === "23505") {
+
+            return res.status(409).json({
+                mensagem: "Você já possui uma avaliação cadastrada."
+            });
+
+        }
+
+        console.error("Erro ao cadastrar depoimento:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao enviar avaliação."
+        });
+
+    }
+
+});
+
+// ----- FIM - CADASTRAR DEPOIMENTO -----
+
+ // ----- INICIO - CONSULTAR MINHA AVALIACAO -----
+
+app.get("/api/me/depoimento", autenticar, async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(
+            `SELECT id, nota, comentario, aprovado, criado_em
+             FROM public.depoimentos
+             WHERE usuario_id = $1
+             LIMIT 1`,
+            [req.usuario.id]
+        );
+
+        return res.status(200).json({
+            depoimento: resultado.rows[0] || null
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao consultar avaliação:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao consultar sua avaliação."
+        });
+
+    }
+
+});
+
+// ----- FIM - CONSULTAR MINHA AVALIACAO -----
+
+
+ // ----- INICIO - LISTAR DEPOIMENTOS ADMIN -----
+
+app.get("/api/admin/depoimentos", autenticar, verificarAdmin, async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(`
+            SELECT
+                d.id,
+                d.usuario_id,
+                u.nome,
+                d.nota,
+                d.comentario,
+                d.aprovado,
+                d.criado_em
+            FROM public.depoimentos d
+            INNER JOIN public.usuarios u
+                ON u.id = d.usuario_id
+            ORDER BY d.criado_em DESC
+        `);
+
+        return res.status(200).json({
+            depoimentos: resultado.rows
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao listar avaliações:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Erro ao consultar avaliações."
+        });
+
+    }
+
+});
+
+// ----- FIM - LISTAR DEPOIMENTOS ADMIN -----
+
+
+// ----- INICIO - APROVAR DEPOIMENTO -----
+
+app.patch("/api/admin/depoimentos/:id/aprovar",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return res.status(400).json({
+                mensagem: "ID inválido."
+            });
+        }
+
+        try {
+
+            const resultado = await pool.query(
+                `UPDATE public.depoimentos
+                 SET aprovado = TRUE,
+                     atualizado_em = NOW()
+                 WHERE id = $1
+                 RETURNING id, aprovado`,
+                [id]
+            );
+
+            if (resultado.rowCount === 0) {
+                return res.status(404).json({
+                    mensagem: "Avaliação não encontrada."
+                });
+            }
+
+            return res.status(200).json({
+                mensagem: "Avaliação aprovada com sucesso!",
+                depoimento: resultado.rows[0]
+            });
+
+        } catch (erro) {
+
+            console.error("Erro ao aprovar avaliação:", erro.message);
+
+            return res.status(500).json({
+                mensagem: "Erro ao aprovar avaliação."
+            });
+
+        }
+
+    }
+);
+
+// ----- FIM - APROVAR DEPOIMENTO -----
+
+
+// ----- INICIO - EXCLUIR DEPOIMENTO -----
+
+app.delete("/api/admin/depoimentos/:id",
+    autenticar,
+    verificarAdmin,
+    async (req, res) => {
+
+        const id = Number(req.params.id);
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return res.status(400).json({
+                mensagem: "ID inválido."
+            });
+        }
+
+        try {
+
+            const resultado = await pool.query(
+                `DELETE FROM public.depoimentos
+                 WHERE id = $1
+                 RETURNING id`,
+                [id]
+            );
+
+            if (resultado.rowCount === 0) {
+                return res.status(404).json({
+                    mensagem: "Avaliação não encontrada."
+                });
+            }
+
+            return res.status(200).json({
+                mensagem: "Avaliação excluída com sucesso!"
+            });
+
+        } catch (erro) {
+
+            console.error("Erro ao excluir avaliação:", erro.message);
+
+            return res.status(500).json({
+                mensagem: "Erro ao excluir avaliação."
+            });
+
+        }
+
+    }
+);
+
+// ----- FIM - EXCLUIR DEPOIMENTO -----
+
 
 
 // ----- INICIO - LISTAR BLOG ADMIN -----
@@ -2692,6 +3429,10 @@ app.delete(
 );
 
 // ----- FIM - EXCLUIR PUBLICACAO -----
+
+
+
+
 
 // ----- INICIO - INICIAR SERVIDOR -----
 

@@ -207,6 +207,18 @@
 <!-- ----- FIM - MENU BLOG ----- -->
 
 
+<!-- ----- INICIO - MENU AVALIACOES ----- -->
+
+<a href="#avaliacoes" data-secao="avaliacoes">
+    <i class="bi bi-star-fill"></i>
+    Avaliações
+</a>
+
+<!-- ----- FIM - MENU AVALIACOES ----- -->
+
+
+
+
             <a href="#mensagens" data-secao="mensagens">
                 <i class="bi bi-envelope"></i>
                 Mensagens
@@ -505,7 +517,7 @@
 <!-- FIM - BARBEIROS -->
 
 
-<!-- INICIO - MODAL CADASTRO E EDICAO DE BARBEIRO -->
+<!-- ----- INICIO - MODAL CADASTRO E EDICAO DE BARBEIRO ----- -->
 
 <div
     class="modal fade"
@@ -518,7 +530,10 @@
 
         <div class="modal-content">
 
+            <!-- ----- INICIO - CABECALHO ----- -->
+
             <div class="modal-header">
+
                 <h5 class="modal-title" id="titulo-modal-barbeiro">
                     Novo Barbeiro
                 </h5>
@@ -529,15 +544,25 @@
                     data-bs-dismiss="modal"
                     aria-label="Fechar"
                 ></button>
+
             </div>
 
-            <form id="form-barbeiro">
+            <!-- ----- FIM - CABECALHO ----- -->
+
+
+            <!-- ----- INICIO - FORMULARIO ----- -->
+
+            <form id="form-barbeiro" enctype="multipart/form-data">
 
                 <div class="modal-body">
 
                     <input type="hidden" id="barbeiro-id">
 
+
+                    <!-- ----- INICIO - NOME ----- -->
+
                     <div class="mb-3">
+
                         <label for="barbeiro-nome" class="form-label">
                             Nome completo
                         </label>
@@ -550,9 +575,16 @@
                             placeholder="Nome do barbeiro"
                             required
                         >
+
                     </div>
 
+                    <!-- ----- FIM - NOME ----- -->
+
+
+                    <!-- ----- INICIO - WHATSAPP ----- -->
+
                     <div class="mb-3">
+
                         <label for="barbeiro-whatsapp" class="form-label">
                             WhatsApp
                         </label>
@@ -564,9 +596,16 @@
                             maxlength="20"
                             placeholder="(54) 99999-9999"
                         >
+
                     </div>
 
+                    <!-- ----- FIM - WHATSAPP ----- -->
+
+
+                    <!-- ----- INICIO - ESPECIALIDADE ----- -->
+
                     <div class="mb-3">
+
                         <label for="barbeiro-especialidade" class="form-label">
                             Especialidade
                         </label>
@@ -578,11 +617,77 @@
                             maxlength="150"
                             placeholder="Ex.: Corte masculino e barba"
                         >
+
                     </div>
 
-                    <div id="erro-form-barbeiro" class="alert alert-danger d-none" role="alert"></div>
+                    <!-- ----- FIM - ESPECIALIDADE ----- -->
+
+
+                    <!-- ----- INICIO - FOTO DO BARBEIRO ----- -->
+
+                    <div class="mb-3">
+
+                        <label for="barbeiro-foto" class="form-label">
+                            Foto do barbeiro
+                        </label>
+
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="barbeiro-foto"
+                            name="foto"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
+
+                        <div class="form-text">
+                            Selecione uma imagem JPG, PNG ou WEBP
+                            de até 2 MB. Ao editar, deixe o campo
+                            vazio para manter a foto atual.
+                        </div>
+
+                    </div>
+
+                    <!-- ----- FIM - FOTO DO BARBEIRO ----- -->
+
+
+                    <!-- ----- INICIO - PREVIA DA FOTO ----- -->
+
+                    <div
+                        id="barbeiro-foto-preview-container"
+                        class="text-center mb-3 d-none"
+                    >
+
+                        <img
+                            id="barbeiro-foto-preview"
+                            alt="Prévia da foto do barbeiro"
+                            class="img-thumbnail"
+                            style="
+                                width: 150px;
+                                height: 150px;
+                                object-fit: cover;
+                                border-radius: 12px;
+                            "
+                        >
+
+                    </div>
+
+                    <!-- ----- FIM - PREVIA DA FOTO ----- -->
+
+
+                    <!-- ----- INICIO - MENSAGEM DE ERRO ----- -->
+
+                    <div
+                        id="erro-form-barbeiro"
+                        class="alert alert-danger d-none"
+                        role="alert"
+                    ></div>
+
+                    <!-- ----- FIM - MENSAGEM DE ERRO ----- -->
 
                 </div>
+
+
+                <!-- ----- INICIO - RODAPE DO MODAL ----- -->
 
                 <div class="modal-footer">
 
@@ -604,14 +709,19 @@
 
                 </div>
 
+                <!-- ----- FIM - RODAPE DO MODAL ----- -->
+
             </form>
+
+            <!-- ----- FIM - FORMULARIO ----- -->
 
         </div>
 
     </div>
 </div>
 
-<!-- FIM - MODAL CADASTRO E EDICAO DE BARBEIRO -->
+<!-- ----- FIM - MODAL CADASTRO E EDICAO DE BARBEIRO -->
+
 
 
 
@@ -925,6 +1035,71 @@
 </section>
 
 <!-- ----- FIM - GERENCIAMENTO DO BLOG ----- -->
+
+<!-- ----- INICIO - GERENCIAMENTO DE AVALIACOES ----- -->
+
+<section id="avaliacoes" class="painel-secao">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+
+        <h3 class="mb-0">Gerenciamento de Avaliações</h3>
+
+        <button type="button"
+                class="btn btn-laranja"
+                id="btn-atualizar-avaliacoes">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Atualizar
+        </button>
+
+    </div>
+
+    <!-- ----- INICIO - MENSAGENS ----- -->
+
+    <div id="aviso-avaliacoes"
+         class="d-none"
+         role="status">
+    </div>
+
+    <!-- ----- FIM - MENSAGENS ----- -->
+
+
+    <!-- ----- INICIO - TABELA DE AVALIACOES ----- -->
+
+    <div class="tabela-container table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Nota</th>
+                    <th>Comentário</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela-avaliacoes">
+
+                <tr>
+                    <td colspan="7" class="text-center">
+                        Aguardando carregamento das avaliações...
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- ----- FIM - TABELA DE AVALIACOES ----- -->
+
+</section>
+
+<!-- ----- FIM - GERENCIAMENTO DE AVALIACOES ----- -->
 
 
 <!-- ----- INICIO - MODAL CADASTRO E EDICAO DO BLOG ----- -->

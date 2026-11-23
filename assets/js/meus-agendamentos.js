@@ -99,9 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = document.createElement("p");
         data.className = "detalhe-agendamento";
         data.textContent =
-            `Data e horÃ¡rio: ${formatarData(agendamento.data_hora)}`;
+            `Data e horário: ${formatarData(agendamento.data_hora)}`;
 
         // ----- FIM - DATA E HORARIO -----
+
 
 
         // ----- INICIO - DURACAO -----
@@ -109,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const duracao = document.createElement("p");
         duracao.className = "detalhe-agendamento";
         duracao.textContent =
-            `DuraÃ§Ã£o: ${agendamento.duracao_minutos} minutos`;
+            `Duração: ${agendamento.duracao_minutos} minutos`;
 
         // ----- FIM - DURACAO -----
 
@@ -137,8 +138,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         }
 
+     
+        // ----- INICIO - EXIBIR STATUS FORMATADO -----
+
+        const nomesStatus = {
+            agendado: "Agendado",
+            cancelado: "Cancelado",
+            concluido: "Concluído",
+            "concluído": "Concluído"
+        };
+
         status.textContent =
-            agendamento.status || "NÃ£o informado";
+            nomesStatus[statusAtual] ||
+            agendamento.status ||
+            "Não informado";
+
+        // ----- FIM - EXIBIR STATUS FORMATADO -----
 
         // ----- FIM - STATUS -----
 
@@ -223,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (!tipoResposta.includes("application/json")) {
 
                         throw new Error(
-                            `A API retornou uma resposta invÃ¡lida (HTTP ${resposta.status}). Verifique a rota de cancelamento no backend.`
+                           `A API retornou uma resposta inválida (HTTP ${resposta.status}). Verifique a rota de cancelamento no backend.`
                         );
 
                     }
@@ -244,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         throw new Error(
                             dados.mensagem ||
-                            "NÃ£o foi possÃ­vel cancelar o agendamento."
+                            "	Não foi possível cancelar o agendamento."
                         );
 
                     }
@@ -332,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 lista.innerHTML = "";
 
                 mostrarMensagem(
-                    "VocÃª precisa fazer login para visualizar seus agendamentos."
+                    "Você precisa fazer login para visualizar seus agendamentos."
                 );
 
                 return;
@@ -347,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!resposta.ok) {
 
                 throw new Error(
-                    "NÃ£o foi possÃ­vel consultar seus agendamentos."
+                    "Não foi possível consultar seus agendamentos."
                 );
 
             }
